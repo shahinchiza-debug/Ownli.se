@@ -58,3 +58,28 @@ Stage Summary:
 - Cover: /home/z/my-project/download/lathund/cover.html + cover.pdf
 - Body script: /home/z/my-project/download/lathund/generate_body.py
 - Content covers: WHM basics, step-by-step new customer setup, settings explained (CGI, SpamBox, Shell, etc.), email management, WordPress & SSL, DNS management, backup & security, troubleshooting, checklists, quick reference paths
+
+---
+Task ID: 2
+Agent: Main
+Task: Create comprehensive cPanel Jupiter handbook covering all 105 functions
+
+Work Log:
+- Scraped cPanel demo via agent-browser (session expired but compiled from official docs)
+- Catalogued all 105 functions across 9 sections + top menu
+- Generated cascade palette for the document
+- Created HTML cover page with Template 03 design
+- Rendered cover via html2poster.js
+- Wrote comprehensive ReportLab Python script for body content
+- Documented all functions: Files (14), Email (21), Databases (8), Domains (9), Metrics (11), Security (12), Software (9), Advanced (9), Preferences (6), Top Menu (6)
+- Each function includes: what it is, how it works, recommendations for restaurant customers
+- Generated body PDF via ReportLab with auto-generated TOC
+- Merged cover + body via pypdf
+- Ran QA check - passed with minor warnings (sub-pixel page size, last page fill)
+
+Stage Summary:
+- Final PDF: /home/z/my-project/download/cpanel-komplett-handbok.pdf (231 KB, 27 pages)
+- Cover: /home/z/my-project/download/lathund/cpanel_cover.html + cpanel_cover.pdf
+- Body script: /home/z/my-project/download/lathund/generate_cpanel_body.py
+- All 105 cPanel functions documented with Swedish explanations
+- Priority table included showing which functions are daily/weekly/rarely used
