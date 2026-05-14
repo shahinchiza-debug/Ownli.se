@@ -37,3 +37,24 @@ Stage Summary:
 - 24 sidor, 0.1 MB
 - Innehaller: Introduktion, Account Functions, Create a New Account (djupgenomgang), Packages, DNS Functions, Email Functions, Security Center, Server Configuration, Software, SSL/TLS, Backup, Ovriga sektioner, Ordlista
 - Alla installningar detaljerade: CGI Access, Shell Access, Spam Box, SpamAssassin, DKIM/SPF/DMARC, Mail Routing osv.
+---
+Task ID: 1
+Agent: Main
+Task: Create WHM & cPanel lathund (cheat sheet) PDF for RestWeb web hosting business
+
+Work Log:
+- Generated cascade color palette for the document
+- Created HTML cover page with Template 03 (Monolith) design
+- Validated cover HTML with poster_validate.py
+- Rendered cover via html2poster.js
+- Wrote comprehensive ReportLab Python script for body content (15 pages)
+- Fixed font compatibility issues (switched to Liberation Serif/Sans)
+- Generated body PDF via ReportLab with auto-generated TOC
+- Merged cover + body via pypdf
+- Ran QA check - passed with 2 minor warnings (page size sub-pixel diff, TOC page fill ratio)
+
+Stage Summary:
+- Final PDF: /home/z/my-project/download/whm-lathund.pdf (176 KB, 15 pages)
+- Cover: /home/z/my-project/download/lathund/cover.html + cover.pdf
+- Body script: /home/z/my-project/download/lathund/generate_body.py
+- Content covers: WHM basics, step-by-step new customer setup, settings explained (CGI, SpamBox, Shell, etc.), email management, WordPress & SSL, DNS management, backup & security, troubleshooting, checklists, quick reference paths
