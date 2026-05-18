@@ -13,15 +13,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RestWeb — Professionella hemsidor för svenska restauranger",
-  description: "Vi skapar vackra, snabba och säkra hemsidor för restauranger i hela Sverige. WordPress, .SE-domän, e-post och hosting — allt i ett paket.",
-  keywords: ["restaurang hemsida", "webbyrå restaurang", "WordPress restaurang", ".SE domän", "restaurang webbdesign Sverige"],
-  authors: [{ name: "RestWeb" }],
+  title: "WebPro — Professionella hemsidor för svenska företag",
+  description: "Vi skapar vackra, snabba och säkra hemsidor för företag i hela Sverige. WordPress, .SE-domän, e-post och hosting — allt i ett paket.",
+  keywords: ["företag hemsida", "webbyrå Sverige", "WordPress företag", ".SE domän", "företags webbdesign Sverige"],
+  authors: [{ name: "WebPro" }],
   openGraph: {
-    title: "RestWeb — Professionella hemsidor för svenska restauranger",
-    description: "Vi skapar vackra, snabba och säkra hemsidor för restauranger i hela Sverige.",
+    title: "WebPro — Professionella hemsidor för svenska företag",
+    description: "Vi skapar vackra, snabba och säkra hemsidor för företag i hela Sverige.",
     type: "website",
-    siteName: "RestWeb",
+    siteName: "WebPro",
   },
 };
 
