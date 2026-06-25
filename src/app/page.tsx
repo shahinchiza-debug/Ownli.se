@@ -15,6 +15,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import ShaderHero from '@/components/ShaderHero';
 
 /* ─── Types ─── */
 type View = 'landing' | 'login' | 'dashboard';
@@ -37,10 +38,20 @@ const industries = [
   { icon: Sparkles, name: 'Friskvård & skönhet', desc: 'Bokning, galleri, behandlingar' },
 ];
 
-const plans = [
-  { name: 'Bas', price: '2 490', period: '/mån', setup: '5 990 kr upprättande', desc: 'Perfekt för mindre företag som vill komma igång.', features: ['Snygg WordPress-hemsida', '.SE-domän ingår', '5 GB lagringsutrymme', '5 e-postkonton', 'SSL/HTTPS', 'Mobilanpassad', 'Daglig backup', 'E-postsupport'], highlighted: false },
-  { name: 'Pro', price: '3 990', period: '/mån', setup: '9 990 kr upprättande', desc: 'Vårt mest populära paket med allt du behöver.', features: ['Allt i Bas, plus:', '20 GB lagringsutrymme', '50 e-postkonton', 'Google Maps-integration', 'SEO-grundoptimering', 'AWStats trafikstatistik', 'Prioriterad support', 'Funktionsidor'], highlighted: true },
-  { name: 'Premium', price: '5 990', period: '/mån', setup: '14 990 kr upprättande', desc: 'Premiumpaketet för företag som vill synas maximalt.', features: ['Allt i Pro, plus:', '50 GB lagringsutrymme', 'Obegränsat e-postkonton', 'Avancerad SEO-optimering', 'Nyhetsbrev-integration', 'Sociala medier-integration', 'Prestandaoptimering', 'Dedikerad kontaktperson'], highlighted: false },
+const purchaseOptions = [
+  { name: 'Direktköp', price: '35 000', desc: 'Kunden köper hemsidan direkt och äger den fullt ut från dag ett.', features: ['Full äganderätt från dag 1', 'Välj abonnemang fritt efter köp', 'Ingen bindningstid', 'All kod och material tillhör dig', 'Fri att byta hosting när du vill'], highlighted: false },
+  { name: 'Avbetalning 2 år', price: '48 000', desc: 'Hemsidan betalas av under 24 månader, varefter full äganderätt övergår till kunden.', features: ['Betalning över 24 månader', '700 kr/mån abonnemang ingår', '1 större omfaktorering ingår', 'Full äganderätt efter perioden', 'Välj fritt abonnemang efter avbetalning'], highlighted: true },
+];
+
+const subscriptions = [
+  { name: 'Bas', price: '300', period: '/mån', desc: 'Hosting och enkel support.', features: ['Hosting på snabba servrar', 'Enkel support (felkoder)', 'Rå trafiklogg per månad', 'SSL/HTTPS ingår', 'Daglig backup'], highlighted: false },
+  { name: 'Plus', price: '700', period: '/mån', desc: 'Allt i Bas plus insikter och uppdateringar.', features: ['Allt i Bas, plus:', 'Trafikinsikter per månad och kvartal', '1–2 uppdateringsrequest per månad', 'Prioriterad support', 'Prestandaövervakning'], highlighted: true },
+  { name: 'Ingen bindning', price: '0', period: '', desc: 'Vi hjälper med övergång till egen hosting och lämnar över allt material.', features: ['Hjälp med övergång', 'Allt material överlämnas', 'Full kontroll själv', 'Inga löpande kostnader', 'Vi finns tillgängliga vid behov'], highlighted: false },
+];
+
+const consultingServices = [
+  { name: 'Större omfaktorering', price: '5 000', desc: 'Större förändring av hemsidans struktur, design eller funktioner.' },
+  { name: 'Liten uppdatering', price: '500', desc: 'Mindre justering som textändringar, bildbyten eller små layoutjusteringar.' },
 ];
 
 const services = [
@@ -59,11 +70,14 @@ const testimonials = [
 ];
 
 const faqs = [
-  { q: 'Hur lång tid tar det att få en hemsida?', a: 'Normalt 2–4 veckor från att vi startar till att hemsidan är live. Enklare projekt kan gå snabbare.' },
-  { q: 'Kan jag flytta min befintliga hemsida till er?', a: 'Absolut! Vi migrerar din befintliga WordPress-hemsida utan driftavbrott via WHM Transfer Tool.' },
-  { q: 'Vad händer om jag vill säga upp mitt abonnemang?', a: 'Du kan säga upp när som helst med 30 dagars varsel. Du äger alltid din domän och din webbplats.' },
-  { q: 'Ingår uppdateringar av hemsidan?', a: 'Ja, WordPress, teman och plugins uppdateras automatiskt via vår WP Toolkit. Mindre textändringar gör vi utan extra kostnad.' },
-  { q: 'Får jag tillgång till cPanel?', a: 'Ja, du får full tillgång till cPanel där du kan hantera e-post, filer, databaser och mer.' },
+  { q: 'Vad är skillnaden mellan direktköp och avbetalning?', a: 'Vid direktköp betalar du 35 000 kr och äger hemsidan från dag ett. Vid avbetalning betalar du 48 000 kr fördelat på 24 månader — under perioden ingår dessutom 700 kr/mån-abonnemanget och en större omfaktorering. Efter 24 månaderna övergår full äganderätt till dig.' },
+  { q: 'Vad händer efter avbetalningen är klar?', a: 'När de 24 månaderna är slut äger du hemsidan fullt ut. Du väljer då fritt om du vill fortsätta med ett abonnemang (Bas eller Plus), avsluta helt, eller ta över hosting på egen hand. Det är ditt val.' },
+  { q: 'Vad ingår i abonnemanget Bas (300 kr/mån)?', a: 'Bas-abonnemanget inkluderar hosting på snabba servrar, enkel support för felkoder, rå trafiklogg per månad, SSL/HTTPS och daglig backup. Perfekt för dig som vill ha trygg drift utan extra funktioner.' },
+  { q: 'Vad ingår i abonnemanget Plus (700 kr/mån)?', a: 'Plus-abonnemanget inkluderar allt i Bas, plus trafikinsikter per månad och kvartal, 1–2 uppdateringsrequest per månad, prioriterad support och prestandaövervakning. Vårt mest populära val.' },
+  { q: 'Vad är en "liten uppdatering" (500 kr) vs en "större omfaktorering" (5 000 kr)?', a: 'En liten uppdatering är mindre justeringar som textändringar, bildbyten eller små layoutjusteringar. En större omfaktorering innebär betydande förändring av hemsidans struktur, design eller funktioner. Vi bedömer alltid scope i förväg så du vet vad som gäller.' },
+  { q: 'Kan jag byta abonnemang under tiden?', a: 'Ja, du kan uppgradera eller nedgradera ditt abonnemang när som helst. Vill du gå från Bas till Plus är det bara att höra av dig — ändringen gäller från nästa månad.' },
+  { q: 'Vad händer om jag vill avsluta mitt abonnemang?', a: 'Abonnemanget har ingen bindningstid. Du kan avsluta när du vill — vi hjälper dig då med övergång till egen hosting och lämnar över allt material. Din hemsida och din domän äger du alltid.' },
+  { q: 'Kan jag flytta min befintliga hemsida till er?', a: 'Absolut! Vi migrerar din befintliga WordPress-hemsida utan driftavbrott. Kontakta oss så löser vi övergången smidigt.' },
   { q: 'Vilka branscher servar ni?', a: 'Alla! Från restauranger och hantverkare till juridik och e-handel. Vi anpassar varje hemsida efter er bransch och era behov.' },
 ];
 
@@ -136,20 +150,20 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
       <main className="flex-1">
         {/* HERO */}
         <section className="relative min-h-screen flex items-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900" />
-          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 25% 25%, rgba(217,119,6,0.3) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(217,119,6,0.2) 0%, transparent 50%)' }} />
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.08\'%3E%3Ccircle cx=\'30\' cy=\'30\' r=\'1.5\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
-          <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-transparent to-transparent" />
+          <ShaderHero className="bg-stone-950" />
+          {/* Subtle dark overlay så texten blir lättare att läsa */}
+          <div className="absolute inset-0 bg-gradient-to-br from-stone-950/40 via-stone-900/20 to-stone-950/60 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-transparent to-transparent pointer-events-none" />
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40">
             <div className="max-w-3xl">
               <Badge className="mb-6 bg-amber-600/20 text-amber-300 border-amber-500/30 hover:bg-amber-600/30 px-4 py-1.5 text-sm"><Zap className="w-3.5 h-3.5 mr-1.5" />Professionella hemsidor för alla branscher</Badge>
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">Ditt företag förtjänar en <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-300">fantastisk</span> hemsida</h1>
-              <p className="text-lg sm:text-xl text-stone-300 mb-10 max-w-2xl leading-relaxed">Vi skapar vackra, snabba och säkra hemsidor för svenska företag. WordPress, .SE-domän, professionell e-post och hosting — allt i ett paket.</p>
+              <p className="text-lg sm:text-xl text-stone-200 mb-10 max-w-2xl leading-relaxed">Vi skapar vackra, snabba och säkra hemsidor för svenska företag. WordPress, .SE-domän, professionell e-post och hosting — allt i ett paket.</p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a href="#priser"><Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-8 text-lg h-14 w-full sm:w-auto shadow-lg shadow-amber-600/25">Se våra paket <ArrowRight className="w-5 h-5 ml-2" /></Button></a>
                 <a href="#process"><Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 text-lg h-14 w-full sm:w-auto">Så fungerar det</Button></a>
               </div>
-              <div className="mt-14 flex flex-wrap gap-x-8 gap-y-3 text-stone-400">
+              <div className="mt-14 flex flex-wrap gap-x-8 gap-y-3 text-stone-300">
                 {[['.SE-domän ingår', true], ['SSL/HTTPS inkluderat', true], ['Svensk support', true], ['99.9% upptid', true]].map(([l, ok]) => (
                   <div key={l as string} className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-400" /><span className="text-sm">{l}</span></div>
                 ))}
@@ -200,23 +214,94 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-16">
               <Badge className="mb-4 bg-amber-100 text-amber-800 border-amber-200">Priser</Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">Transparenta priser — inga dolda kostnader</h2>
-              <p className="text-lg text-stone-600">Välj det paket som passar ditt företag. Alla priser är exkl. moms.</p>
+              <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">Transparenta priser — du äger, vi bygger</h2>
+              <p className="text-lg text-stone-600">Köp din hemsida, välj abonnemang efter behov. Alla priser är exkl. moms.</p>
             </div>
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {plans.map(plan => (
-                <Card key={plan.name} className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${plan.highlighted ? 'border-2 border-amber-500 shadow-xl shadow-amber-500/10 scale-[1.02]' : 'border-stone-200 hover:shadow-lg'}`}>
-                  {plan.highlighted && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><Badge className="bg-amber-600 text-white px-4 py-1 text-sm">Mest populär</Badge></div>}
-                  <CardHeader className="pb-2"><CardTitle className="text-2xl text-stone-900">{plan.name}</CardTitle><p className="text-stone-500 text-sm">{plan.desc}</p></CardHeader>
-                  <CardContent className="flex-1">
-                    <div className="mb-6"><span className="text-4xl font-bold text-stone-900">{plan.price}</span><span className="text-stone-500">{plan.period}</span><p className="text-xs text-stone-400 mt-1">{plan.setup}</p></div>
-                    <ul className="space-y-3">{plan.features.map((f, i) => <li key={i} className="flex items-start gap-2.5"><CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" /><span className="text-sm text-stone-700">{f}</span></li>)}</ul>
-                  </CardContent>
-                  <CardFooter><a href="#kontakt" className="w-full"><Button className={`w-full rounded-full h-12 text-base font-medium ${plan.highlighted ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-stone-900 hover:bg-stone-800 text-white'}`}>Välj {plan.name} <ArrowRight className="w-4 h-4 ml-2" /></Button></a></CardFooter>
-                </Card>
-              ))}
+
+            {/* Köpalternativ */}
+            <div className="mb-20">
+              <div className="text-center mb-10">
+                <h3 className="text-2xl font-bold text-stone-900 mb-2">Köpalternativ</h3>
+                <p className="text-stone-600">Välj hur du vill betala för din hemsida.</p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                {purchaseOptions.map(opt => (
+                  <Card key={opt.name} className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${opt.highlighted ? 'border-2 border-amber-500 shadow-xl shadow-amber-500/10 scale-[1.02]' : 'border-stone-200 hover:shadow-lg'}`}>
+                    {opt.highlighted && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><Badge className="bg-amber-600 text-white px-4 py-1 text-sm">Mest populär</Badge></div>}
+                    <CardHeader className="pb-2"><CardTitle className="text-2xl text-stone-900">{opt.name}</CardTitle><p className="text-stone-500 text-sm">{opt.desc}</p></CardHeader>
+                    <CardContent className="flex-1">
+                      <div className="mb-6">
+                        <span className="text-4xl font-bold text-stone-900">{opt.price}</span>
+                        <span className="text-stone-500 text-lg"> kr</span>
+                        {opt.name === 'Avbetalning 2 år' && <p className="text-xs text-stone-400 mt-1">Ca 2 000 kr/mån i 24 månader</p>}
+                      </div>
+                      <ul className="space-y-3">{opt.features.map((f, i) => <li key={i} className="flex items-start gap-2.5"><CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" /><span className="text-sm text-stone-700">{f}</span></li>)}</ul>
+                    </CardContent>
+                    <CardFooter><a href="#kontakt" className="w-full"><Button className={`w-full rounded-full h-12 text-base font-medium ${opt.highlighted ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-stone-900 hover:bg-stone-800 text-white'}`}>Välj {opt.name} <ArrowRight className="w-4 h-4 ml-2" /></Button></a></CardFooter>
+                  </Card>
+                ))}
+              </div>
             </div>
-            <p className="text-center text-stone-500 mt-10 text-sm">Alla paket inkluderar: WHM/cPanel hosting, Let&apos;s Encrypt SSL, Imunify360 antivirusskydd, dagliga backuper (30 dagar), CloudLinux och LiteSpeed webbserver.</p>
+
+            {/* Abonnemang */}
+            <div className="mb-20">
+              <div className="text-center mb-10">
+                <h3 className="text-2xl font-bold text-stone-900 mb-2">Abonnemang</h3>
+                <p className="text-stone-600">Väljs efter avslutat köp. Ingen bindningstid.</p>
+              </div>
+              <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                {subscriptions.map(sub => (
+                  <Card key={sub.name} className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${sub.highlighted ? 'border-2 border-amber-500 shadow-xl shadow-amber-500/10 scale-[1.02]' : 'border-stone-200 hover:shadow-lg'}`}>
+                    {sub.highlighted && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><Badge className="bg-amber-600 text-white px-4 py-1 text-sm">Mest populär</Badge></div>}
+                    <CardHeader className="pb-2"><CardTitle className="text-2xl text-stone-900">{sub.name}</CardTitle><p className="text-stone-500 text-sm">{sub.desc}</p></CardHeader>
+                    <CardContent className="flex-1">
+                      <div className="mb-6">
+                        {sub.price === '0' ? (
+                          <span className="text-4xl font-bold text-stone-900">Kostnadsfritt</span>
+                        ) : (
+                          <>
+                            <span className="text-4xl font-bold text-stone-900">{sub.price}</span>
+                            <span className="text-stone-500 text-lg"> kr{sub.period}</span>
+                          </>
+                        )}
+                      </div>
+                      <ul className="space-y-3">{sub.features.map((f, i) => <li key={i} className="flex items-start gap-2.5"><CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" /><span className="text-sm text-stone-700">{f}</span></li>)}</ul>
+                    </CardContent>
+                    <CardFooter><a href="#kontakt" className="w-full"><Button className={`w-full rounded-full h-12 text-base font-medium ${sub.highlighted ? 'bg-amber-600 hover:bg-amber-700 text-white' : sub.price === '0' ? 'bg-stone-600 hover:bg-stone-700 text-white' : 'bg-stone-900 hover:bg-stone-800 text-white'}`}>{sub.price === '0' ? 'Läs mer' : `Välj ${sub.name}`} <ArrowRight className="w-4 h-4 ml-2" /></Button></a></CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Konsulttjänster */}
+            <div className="mb-20">
+              <div className="text-center mb-10">
+                <h3 className="text-2xl font-bold text-stone-900 mb-2">Konsulttjänster</h3>
+                <p className="text-stone-600">För arbeten som faller utanför abonnemangets scope.</p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                {consultingServices.map(svc => (
+                  <Card key={svc.name} className="border-stone-200 hover:shadow-lg transition-shadow duration-300">
+                    <CardHeader><CardTitle className="text-lg text-stone-900">{svc.name}</CardTitle></CardHeader>
+                    <CardContent>
+                      <div className="mb-3"><span className="text-3xl font-bold text-stone-900">{svc.price}</span><span className="text-stone-500 text-lg"> kr</span>{svc.name === 'Liten uppdatering' && <span className="text-stone-400 text-sm ml-1">/ request</span>}</div>
+                      <p className="text-stone-600 text-sm leading-relaxed">{svc.desc}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Hur det fungerar */}
+            <div className="bg-stone-50 rounded-2xl p-8 sm:p-12 max-w-4xl mx-auto">
+              <h3 className="text-2xl font-bold text-stone-900 mb-6 text-center">Hur det fungerar</h3>
+              <div className="space-y-4 text-stone-600 leading-relaxed">
+                <p>Kunden köper en hemsida via ett av två alternativ. Vid <strong className="text-stone-900">direktköp</strong> äger kunden hemsidan från dag ett och väljer därefter fritt om de vill teckna ett abonnemang.</p>
+                <p>Vid <strong className="text-stone-900">2-årsalternativet</strong> betalas hemsidan av under 24 månader — under denna period ingår 700 kr/mån-abonnemanget samt en omfaktorering automatiskt i priset.</p>
+                <p>När de 24 månaderna är slut övergår full äganderätt till kunden, som då fritt väljer att fortsätta med ett abonnemang, avsluta eller ta över hosting helt på egen hand.</p>
+                <p><strong className="text-stone-900">Konsulttjänster</strong> erbjuds löpande till båda kundgrupper för arbeten som faller utanför abonnemangets scope.</p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -226,10 +311,10 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
             <div className="text-center max-w-2xl mx-auto mb-16">
               <Badge className="mb-4 bg-amber-600/20 text-amber-300 border-amber-500/30">Vår process</Badge>
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">Från samtal till lansering — fyra enkla steg</h2>
-              <p className="text-lg text-stone-400">Vi gör det enkelt. Du slipper tekniska detaljer och kan fokusera på det du gör bäst — att driva ditt företag.</p>
+              <p className="text-lg text-stone-400">Vi gör det enkelt. Du äger resultatet, vi bygger vägen dit.</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[{ n: '01', icon: MessageCircle, t: 'Vi pratar', d: 'Du berättar om ditt företag, din vision och vad du behöver. Vi lyssnar och ger råd.' }, { n: '02', icon: Palette, t: 'Vi designar', d: 'Vi skapar en unik design som speglar ditt företags identitet. Du får justera tills du är nöjd.' }, { n: '03', icon: Server, t: 'Vi bygger', d: 'Vi bygger din hemsida i WordPress, ordnar .SE-domän, e-post, SSL och hosting.' }, { n: '04', icon: Zap, t: 'Vi lanserar', d: 'När du godkänt allt publicerar vi din nya hemsida. Därefter står vi för drift och support.' }].map(s => { const Icon = s.icon; return (
+              {[{ n: '01', icon: MessageCircle, t: 'Vi pratar', d: 'Du berättar om ditt företag och vad du behöver. Vi lyssnar och ger råd om vilka funktioner som passar bäst.' }, { n: '02', icon: Palette, t: 'Vi designar', d: 'Vi skapar en unik design som speglar ditt företags identitet. Du får justera tills du är nöjd.' }, { n: '03', icon: Server, t: 'Vi bygger', d: 'Vi bygger din hemsida, ordnar .SE-domän, e-post, SSL och hosting. Allt driftklart.' }, { n: '04', icon: Shield, t: 'Du äger', d: 'Vid direktköp äger du allt från dag 1. Vid avbetalning äger du allt när perioden är slut. Abonnemang väljer du fritt.' }].map(s => { const Icon = s.icon; return (
                 <div key={s.n} className="relative text-center group">
                   <div className="text-6xl font-black text-amber-600/20 mb-2 group-hover:text-amber-600/30 transition-colors">{s.n}</div>
                   <div className="w-14 h-14 rounded-2xl bg-amber-600/20 flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-600/30 transition-colors"><Icon className="w-7 h-7 text-amber-400" /></div>
