@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import ShaderHero from '@/components/ShaderHero';
+import OwlMascot from '@/components/OwlMascot';
 
 /* ─── Types ─── */
 type View = 'landing' | 'login' | 'dashboard';
@@ -154,19 +155,33 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
           {/* Subtle dark overlay så texten blir lättare att läsa */}
           <div className="absolute inset-0 bg-gradient-to-br from-stone-950/40 via-stone-900/20 to-stone-950/60 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-transparent to-transparent pointer-events-none" />
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40">
-            <div className="max-w-3xl">
-              <Badge className="mb-6 bg-amber-600/20 text-amber-300 border-amber-500/30 hover:bg-amber-600/30 px-4 py-1.5 text-sm"><Zap className="w-3.5 h-3.5 mr-1.5" />Professionella hemsidor för alla branscher</Badge>
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">Ditt företag förtjänar en <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-300">fantastisk</span> hemsida</h1>
-              <p className="text-lg sm:text-xl text-stone-200 mb-10 max-w-2xl leading-relaxed">Vi skapar vackra, snabba och säkra hemsidor för svenska företag. WordPress, .SE-domän, professionell e-post och hosting — allt i ett paket.</p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a href="#priser"><Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-8 text-lg h-14 w-full sm:w-auto shadow-lg shadow-amber-600/25">Se våra paket <ArrowRight className="w-5 h-5 ml-2" /></Button></a>
-                <a href="#process"><Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 text-lg h-14 w-full sm:w-auto">Så fungerar det</Button></a>
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40 w-full">
+            <div className="grid lg:grid-cols-[1.3fr_1fr] gap-12 items-center">
+              {/* Vänster: textinnehåll */}
+              <div className="max-w-2xl">
+                <Badge className="mb-6 bg-amber-600/20 text-amber-300 border-amber-500/30 hover:bg-amber-600/30 px-4 py-1.5 text-sm"><Zap className="w-3.5 h-3.5 mr-1.5" />Professionella hemsidor för alla branscher</Badge>
+                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">Ditt företag förtjänar en <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-300">fantastisk</span> hemsida</h1>
+                <p className="text-lg sm:text-xl text-stone-200 mb-10 max-w-2xl leading-relaxed">Vi skapar vackra, snabba och säkra hemsidor för svenska företag. WordPress, .SE-domän, professionell e-post och hosting — allt i ett paket.</p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <a href="#priser"><Button size="lg" className="bg-amber-600 hover:bg-amber-700 text-white rounded-full px-8 text-lg h-14 w-full sm:w-auto shadow-lg shadow-amber-600/25">Se våra paket <ArrowRight className="w-5 h-5 ml-2" /></Button></a>
+                  <a href="#process"><Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 text-lg h-14 w-full sm:w-auto">Så fungerar det</Button></a>
+                </div>
+                <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-stone-300">
+                  {[['.SE-domän ingår', true], ['SSL/HTTPS inkluderat', true], ['Svensk support', true], ['99.9% upptid', true]].map(([l, ok]) => (
+                    <div key={l as string} className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-400" /><span className="text-sm">{l}</span></div>
+                  ))}
+                </div>
               </div>
-              <div className="mt-14 flex flex-wrap gap-x-8 gap-y-3 text-stone-300">
-                {[['.SE-domän ingår', true], ['SSL/HTTPS inkluderat', true], ['Svensk support', true], ['99.9% upptid', true]].map(([l, ok]) => (
-                  <div key={l as string} className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-400" /><span className="text-sm">{l}</span></div>
-                ))}
+
+              {/* Höger: Ownli-ugglan (maskot) */}
+              <div className="hidden lg:flex justify-center items-center relative">
+                <div className="absolute inset-0 bg-amber-500/10 blur-3xl rounded-full" />
+                <div className="relative">
+                  <OwlMascot size={380} />
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-stone-900/80 backdrop-blur-sm border border-amber-500/30 rounded-full px-4 py-1.5 text-amber-300 text-xs font-medium whitespace-nowrap">
+                    Vaksam · Vis · Äger natten
+                  </div>
+                </div>
               </div>
             </div>
           </div>
