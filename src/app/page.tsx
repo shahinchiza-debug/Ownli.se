@@ -44,6 +44,15 @@ const purchaseOptions = [
   { name: 'Avbetalning 2 år', price: '2 000', unit: 'kr/månaden', desc: 'Hemsidan betalas av under 24 månader, varefter full äganderätt övergår till kunden.', features: ['Betalning över 24 månader', 'Hosting, drift och support ingår', '1 större omfaktorering ingår', 'Full äganderätt efter perioden', 'Välj driftpartner fritt efteråt'], highlighted: true },
 ];
 
+/* Hero-varianter: [före, markera, efter] + underrubrik. Plockas slumpmässigt vid varje sidladdning. */
+const heroVariants: { title: [string, string, string]; subtitle: string }[] = [
+  { title: ['Ditt företag förtjänar en ', 'fantastisk', ' hemsida'], subtitle: 'Sikta högre. Sikta mot stjärnorna.' },
+  { title: ['Ditt företag förtjänar en hemsida som ', 'sticker ut', ''], subtitle: 'Varför nöja sig med mindre när ni kan sikta mot stjärnorna?' },
+  { title: ['Ditt företag förtjänar ', 'mer', ' än bara en hemsida'], subtitle: 'Det förtjänar något som lyfter er mot stjärnorna.' },
+  { title: ['En fantastisk hemsida för företag som vill ', 'högre', ''], subtitle: 'Sikta mot stjärnorna med en webbplats som verkligen syns.' },
+  { title: ['Ditt företag förtjänar en ', 'fantastisk', ' hemsida'], subtitle: 'Bygg något större. Nå längre. Sikta mot stjärnorna.' },
+];
+
 
 
 const services = [
@@ -82,6 +91,9 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [contactSent, setContactSent] = useState(false);
+  // Slumpa hero-variant vid varje sidladdning (refresh).
+  const [heroIdx] = useState(() => Math.floor(Math.random() * heroVariants.length));
+  const hero = heroVariants[heroIdx];
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 20);
@@ -147,8 +159,8 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40 w-full">
             <div className="max-w-3xl mx-auto text-center">
               <div className="mb-6 inline-flex items-center gap-2 text-blue-300 text-sm font-semibold tracking-[0.2em] uppercase"><span className="h-px w-8 bg-blue-400/60" />Du äger. Vi bygger.<span className="h-px w-8 bg-blue-400/60" /></div>
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">Ditt företag förtjänar en <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">fantastisk</span> hemsida</h1>
-              <p className="text-lg sm:text-xl text-stone-200 mb-10 max-w-2xl mx-auto leading-relaxed">Vi skapar vackra och säkra hemsidor för svenska företag — och du äger alltid koden, domänen och domännamnet. WordPress, .SE-domän, professionell e-post och hosting i ett paket.</p>
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6" suppressHydrationWarning>{hero.title[0]}<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">{hero.title[1]}</span>{hero.title[2]}</h1>
+              <p className="text-lg sm:text-xl text-stone-200 mb-10 max-w-2xl mx-auto leading-relaxed" suppressHydrationWarning>{hero.subtitle}</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="#priser"><Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 text-lg h-14 w-full sm:w-auto shadow-lg shadow-blue-600/25">Se våra priser <ArrowRight className="w-5 h-5 ml-2" /></Button></a>
                 <a href="#process"><Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 text-lg h-14 w-full sm:w-auto">Så fungerar det</Button></a>
