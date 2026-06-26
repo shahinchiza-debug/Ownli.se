@@ -40,8 +40,8 @@ const industries = [
 ];
 
 const purchaseOptions = [
-  { name: 'Direktköp', price: '35 000', desc: 'Kunden köper hemsidan direkt och äger den fullt ut från dag ett.', features: ['Full äganderätt från dag 1', 'Drift och hosting väljs fritt', 'Ingen bindningstid', 'All kod och material tillhör dig', 'Fri att flytta när du vill'], highlighted: false },
-  { name: 'Avbetalning 2 år', price: '48 000', desc: 'Hemsidan betalas av under 24 månader, varefter full äganderätt övergår till kunden.', features: ['Betalning över 24 månader', 'Hosting, drift och support ingår', '1 större omfaktorering ingår', 'Full äganderätt efter perioden', 'Välj driftpartner fritt efteråt'], highlighted: true },
+  { name: 'Direktköp', price: '35 000', unit: 'kr', desc: 'Kunden köper hemsidan direkt och äger den fullt ut från dag ett.', features: ['Full äganderätt från dag 1', 'Drift och hosting väljs fritt', 'Ingen bindningstid', 'All kod och material tillhör dig', 'Fri att flytta när du vill'], highlighted: false },
+  { name: 'Avbetalning 2 år', price: '2 000', unit: 'kr/månaden', desc: 'Hemsidan betalas av under 24 månader, varefter full äganderätt övergår till kunden.', features: ['Betalning över 24 månader', 'Hosting, drift och support ingår', '1 större omfaktorering ingår', 'Full äganderätt efter perioden', 'Välj driftpartner fritt efteråt'], highlighted: true },
 ];
 
 
@@ -62,7 +62,7 @@ const testimonials = [
 ];
 
 const faqs = [
-  { q: 'Vad är skillnaden mellan direktköp och avbetalning?', a: 'Vid direktköp betalar du 35 000 kr och äger hemsidan från dag ett — du väljer själv hosting och drift. Vid avbetalning betalar du 48 000 kr fördelat på 24 månader — under perioden ingår hosting, support och en större omfaktorering. Efter 24 månaderna övergår full äganderätt till dig.' },
+  { q: 'Vad är skillnaden mellan direktköp och avbetalning?', a: 'Vid direktköp betalar du 35 000 kr och äger hemsidan från dag ett — du väljer själv hosting och drift. Vid avbetalning betalar du 2 000 kr per månad i 24 månader — under perioden ingår hosting, support och en större omfaktorering. Efter 24 månaderna övergår full äganderätt till dig.' },
   { q: 'Vad händer efter avbetalningen är klar?', a: 'När de 24 månaderna är slut äger du hemsidan fullt ut. Du väljer då fritt om du vill ha kvar oss som driftpartner, ta över hosting på egen hand, eller flytta till en annan leverantör. Det är ditt val.' },
   { q: 'Ingår hosting i priset?', a: 'Direktköp (35 000 kr) är själva hemsidan — du väljer därefter hosting själv eller via oss. Vid avbetalning under 24 månader ingår drift, support och uppdateringar under hela perioden.' },
   { q: 'Vad händer med min domän om jag vill flytta?', a: 'Du äger alltid din domän. Vill du flytta till en annan leverantör hjälper vi dig kostnadsfritt att överföra den, oavsett om du köpt direkt eller via avbetalning.' },
@@ -148,7 +148,7 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
             <div className="max-w-3xl mx-auto text-center">
               <div className="mb-6 inline-flex items-center gap-2 text-blue-300 text-sm font-semibold tracking-[0.2em] uppercase"><span className="h-px w-8 bg-blue-400/60" />Du äger. Vi bygger.<span className="h-px w-8 bg-blue-400/60" /></div>
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">Ditt företag förtjänar en <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">fantastisk</span> hemsida</h1>
-              <p className="text-lg sm:text-xl text-stone-200 mb-10 max-w-2xl mx-auto leading-relaxed">Vi skapar vackra, snabba och säkra hemsidor för svenska företag — och du äger alltid koden, domänen och domännamnet. WordPress, .SE-domän, professionell e-post och hosting i ett paket.</p>
+              <p className="text-lg sm:text-xl text-stone-200 mb-10 max-w-2xl mx-auto leading-relaxed">Vi skapar vackra och säkra hemsidor för svenska företag — och du äger alltid koden, domänen och domännamnet. WordPress, .SE-domän, professionell e-post och hosting i ett paket.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="#priser"><Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 text-lg h-14 w-full sm:w-auto shadow-lg shadow-blue-600/25">Se våra priser <ArrowRight className="w-5 h-5 ml-2" /></Button></a>
                 <a href="#process"><Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 text-lg h-14 w-full sm:w-auto">Så fungerar det</Button></a>
@@ -167,7 +167,6 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
         <section id="tjanster" className="py-20 sm:py-28 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <Badge className="mb-4 bg-blue-100 text-blue-800 border-blue-200">Våra tjänster</Badge>
               <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">Allt ditt företag behöver på nätet</h2>
               <p className="text-lg text-stone-600">Från domän och hosting till design och e-post — vi hanterar allt tekniskt så att du kan fokusera på din verksamhet.</p>
             </div>
@@ -185,7 +184,6 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
         <section id="branscher" className="py-20 sm:py-28 bg-stone-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <Badge className="mb-4 bg-blue-100 text-blue-800 border-blue-200">Branscher</Badge>
               <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">Vi servar alla branscher</h2>
               <p className="text-lg text-stone-600">Oavsett bransch hjälper vi ditt företag att synas online</p>
             </div>
@@ -203,7 +201,6 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
         <section id="priser" className="py-20 sm:py-28 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <Badge className="mb-4 bg-blue-100 text-blue-800 border-blue-200">Priser</Badge>
               <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">Transparenta priser — du äger, vi bygger</h2>
               <p className="text-lg text-stone-600">Två enkla sätt att bli ägare. Alla priser är exkl. moms.</p>
             </div>
@@ -218,8 +215,7 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
                     <CardContent className="flex-1">
                       <div className="mb-6">
                         <span className="text-4xl font-bold text-stone-900">{opt.price}</span>
-                        <span className="text-stone-500 text-lg"> kr</span>
-                        {opt.name === 'Avbetalning 2 år' && <p className="text-xs text-stone-400 mt-1">Ca 2 000 kr/mån i 24 månader</p>}
+                        <span className="text-stone-500 text-lg"> {opt.unit}</span>
                       </div>
                       <ul className="space-y-3">{opt.features.map((f, i) => <li key={i} className="flex items-start gap-2.5"><CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" /><span className="text-sm text-stone-700">{f}</span></li>)}</ul>
                     </CardContent>
@@ -234,7 +230,7 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
               <h3 className="text-2xl font-bold text-stone-900 mb-6 text-center">Hur det fungerar</h3>
               <div className="space-y-4 text-stone-600 leading-relaxed">
                 <p>Du köper din hemsida via ett av två alternativ. Vid <strong className="text-stone-900">direktköp</strong> betalar du 35 000 kr och äger hemsidan fullt ut från dag ett — fri att hosta hos oss, hos någon annan eller på egen hand.</p>
-                <p>Vid <strong className="text-stone-900">avbetalning 2 år</strong> betalar du 48 000 kr fördelat på 24 månader. Under perioden ingår drift, support och en större omfaktorering. När perioden är slut övergår full äganderätt till dig.</p>
+                <p>Vid <strong className="text-stone-900">avbetalning 2 år</strong> betalar du 2 000 kr per månad i 24 månader. Under perioden ingår drift, support och en större omfaktorering. När perioden är slut övergår full äganderätt till dig.</p>
                 <p><strong className="text-stone-900">Du äger alltid din domän och din kod.</strong> Vi bygger, du bestämmer — precis som varumärket lovar: "Du äger. Vi bygger."</p>
               </div>
             </div>
@@ -245,7 +241,6 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
         <section id="process" className="py-20 sm:py-28 bg-stone-900 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <Badge className="mb-4 bg-blue-600/20 text-blue-300 border-blue-500/30">Vår process</Badge>
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">Från samtal till lansering — fyra enkla steg</h2>
               <p className="text-lg text-stone-400">Vi gör det enkelt. Du äger resultatet, vi bygger vägen dit.</p>
             </div>
@@ -276,7 +271,6 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
         <section className="py-20 sm:py-28 bg-stone-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <Badge className="mb-4 bg-blue-100 text-blue-800 border-blue-200">Kundröster</Badge>
               <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">Vad våra kunder säger</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
@@ -295,7 +289,6 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
-                <Badge className="mb-4 bg-blue-100 text-blue-800 border-blue-200">Om oss</Badge>
                 <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-6">Vi förstår svenska företag — och webben</h2>
                 <div className="space-y-4 text-stone-600 leading-relaxed">
                   <p>Ownli grundades med en enkel idé: svenska företag förtjänar bättre hemsidor. För ofta ser vi fantastiska företag med dåliga, långsamma eller osäkra hemsidor som kostar för mycket.</p>
@@ -320,7 +313,6 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
         <section className="py-20 sm:py-28 bg-stone-50">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <Badge className="mb-4 bg-blue-100 text-blue-800 border-blue-200">Vanliga frågor</Badge>
               <h2 className="text-3xl sm:text-4xl font-bold text-stone-900">Frågor och svar</h2>
             </div>
             <div className="space-y-3">
@@ -342,7 +334,6 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-16">
               <div>
-                <Badge className="mb-4 bg-blue-100 text-blue-800 border-blue-200">Kontakt</Badge>
                 <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-6">Redo att synas online?</h2>
                 <p className="text-lg text-stone-600 mb-10 leading-relaxed">Berätta om ditt företag och vilka behov du har. Vi återkommer med ett förslag inom 24 timmar — helt kostnadsfritt.</p>
                 <div className="space-y-6">
