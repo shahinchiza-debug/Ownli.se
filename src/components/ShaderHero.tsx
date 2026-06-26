@@ -64,11 +64,12 @@ void main(void) {
     uv+=.1*cos(i*vec2(.1+.01*i, .8)+i*i+T*.5+.1*uv.x);
     vec2 p=uv;
     float d=length(p);
-    col+=.00125/d*(cos(sin(i)*vec3(1,2,3))+1.);
+    // Stjärnor: blå-tonad (minskar rött, ökar blått)
+    col+=.00125/d*(cos(sin(i)*vec3(1,2,3))+1.)*vec3(0.5, 0.8, 1.1);
     float b=noise(i+p+bg*1.731);
-    col+=.002*b/length(max(p,vec2(b*p.x*.02,p.y)));
-    // Ownli amber-tema: varmt guld/brännt istället för kallt blått
-    col=mix(col, vec3(bg*0.85, bg*0.45, bg*0.10), d);
+    col+=.002*b/length(max(p,vec2(b*p.x*.02,p.y)))*vec3(0.4, 0.7, 1.0);
+    // Ownli blå-tema: kallt blått/ljusblått istället för varmt guld
+    col=mix(col, vec3(bg*0.10, bg*0.45, bg*0.85), d);
   }
   O=vec4(col,1);
 }`;

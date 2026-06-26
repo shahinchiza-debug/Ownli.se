@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     }
 
     const res = NextResponse.json({ success: true, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
-    res.cookies.set('webpro_session', user.id, { httpOnly: true, maxAge: 86400, path: '/' });
+    res.cookies.set('ownli_session', user.id, { httpOnly: true, maxAge: 86400, path: '/' });
     return res;
   } catch (error) {
     console.error('Login error:', error);

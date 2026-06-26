@@ -13,15 +13,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WebPro — Professionella hemsidor för svenska företag",
-  description: "Vi skapar vackra, snabba och säkra hemsidor för företag i hela Sverige. WordPress, .SE-domän, e-post och hosting — allt i ett paket.",
-  keywords: ["företag hemsida", "webbyrå Sverige", "WordPress företag", ".SE domän", "företags webbdesign Sverige"],
-  authors: [{ name: "WebPro" }],
+  title: "Ownli — Professionella hemsidor för svenska företag",
+  description: "Vi skapar vackra, snabba och säkra hemsidor för företag i hela Sverige. WordPress, .SE-domän, e-post och hosting — du äger, vi bygger.",
+  keywords: ["företag hemsida", "webbyrå Sverige", "WordPress företag", ".SE domän", "företags webbdesign Sverige", "Ownli"],
+  authors: [{ name: "Ownli" }],
   openGraph: {
-    title: "WebPro — Professionella hemsidor för svenska företag",
-    description: "Vi skapar vackra, snabba och säkra hemsidor för företag i hela Sverige.",
+    title: "Ownli — Professionella hemsidor för svenska företag",
+    description: "Vi skapar vackra, snabba och säkra hemsidor för företag i hela Sverige. Du äger. Vi bygger.",
     type: "website",
-    siteName: "WebPro",
+    siteName: "Ownli",
   },
 };
 

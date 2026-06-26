@@ -11,7 +11,7 @@ export async function POST() {
 
     const hashedPassword = await bcrypt.hash('admin123', 10);
     const user = await db.user.create({
-      data: { email: 'admin@webpro.se', name: 'Admin', password: hashedPassword, role: 'admin' },
+      data: { email: 'admin@ownli.se', name: 'Admin', password: hashedPassword, role: 'admin' },
     });
 
     // Seed demo customers
