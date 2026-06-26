@@ -116,8 +116,44 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv11", "ss01", "ss03";
   }
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+  /* Balansera rubriker så radbrytningar blir mer estetiska */
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  /* Custom selection */
+  ::selection {
+    background-color: oklch(0.55 0.15 250 / 0.25);
+    color: inherit;
+  }
+  /* Raffinerad scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.85 0.01 80);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.7 0.01 80);
+    background-clip: padding-box;
+    border: 2px solid transparent;
   }
 }

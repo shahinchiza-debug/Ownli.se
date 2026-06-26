@@ -8,7 +8,7 @@ import {
   GraduationCap, Building, Sparkles, Home, Users, FileText, Inbox, Settings,
   LogOut, Plus, Trash2, Eye, EyeOff, ChevronDown, TrendingUp, DollarSign,
   AlertCircle, CheckCircle, XCircle, Edit, LayoutDashboard, FolderOpen,
-  Receipt, MessageSquare,
+  Receipt, MessageSquare, Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -165,9 +165,11 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
                 <a href="#priser"><Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 text-lg h-14 w-full sm:w-auto shadow-lg shadow-blue-600/25">Se våra priser <ArrowRight className="w-5 h-5 ml-2" /></Button></a>
                 <a href="#process"><Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 text-lg h-14 w-full sm:w-auto">Så fungerar det</Button></a>
               </div>
-              <div className="mt-10 flex flex-wrap justify-center gap-x-8 gap-y-3 text-stone-300">
-                {[['.SE-domän ingår', true], ['SSL/HTTPS inkluderat', true], ['Svensk support', true], ['99.9% upptid', true]].map(([l, ok]) => (
-                  <div key={l as string} className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-emerald-400" /><span className="text-sm">{l}</span></div>
+              <div className="mt-12 flex flex-wrap justify-center gap-2 sm:gap-3">
+                {['.SE-domän ingår', 'SSL/HTTPS inkluderat', 'Svensk support', '99.9% upptid'].map(l => (
+                  <span key={l} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-stone-200 text-xs sm:text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />{l}
+                  </span>
                 ))}
               </div>
             </div>
@@ -184,9 +186,18 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {services.map(s => { const Icon = s.icon; return (
-                <Card key={s.title} className="group border-stone-200 hover:border-blue-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                  <CardHeader><div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mb-3 group-hover:bg-blue-600 transition-colors"><Icon className="w-6 h-6 text-blue-700 group-hover:text-white transition-colors" /></div><CardTitle className="text-xl text-stone-900">{s.title}</CardTitle></CardHeader>
-                  <CardContent><p className="text-stone-600 leading-relaxed">{s.desc}</p></CardContent>
+                <Card key={s.title} className="group relative border-stone-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-300 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                  <CardHeader>
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center mb-3 group-hover:from-blue-600 group-hover:to-blue-700 transition-all duration-300 shadow-sm">
+                      <Icon className="w-6 h-6 text-blue-700 group-hover:text-white transition-colors" />
+                    </div>
+                    <CardTitle className="text-xl text-stone-900 flex items-center justify-between gap-2">
+                      {s.title}
+                      <ArrowRight className="w-4 h-4 text-stone-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent><p className="text-stone-600 leading-relaxed text-sm">{s.desc}</p></CardContent>
                 </Card>); })}
             </div>
           </div>
@@ -199,11 +210,16 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
               <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">Vi servar alla branscher</h2>
               <p className="text-lg text-stone-600">Oavsett bransch hjälper vi ditt företag att synas online</p>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {industries.map(ind => { const Icon = ind.icon; return (
-                <Card key={ind.name} className="group border-stone-200 hover:border-blue-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-center">
-                  <CardHeader className="items-center pb-2"><div className="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center mb-2 group-hover:bg-blue-600 transition-colors"><Icon className="w-7 h-7 text-blue-700 group-hover:text-white transition-colors" /></div><CardTitle className="text-lg text-stone-900">{ind.name}</CardTitle></CardHeader>
-                  <CardContent><p className="text-stone-600 text-sm">{ind.desc}</p></CardContent>
+                <Card key={ind.name} className="group border-stone-200 hover:border-blue-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 text-center bg-white">
+                  <CardHeader className="items-center pb-2 pt-6">
+                    <div className="w-14 h-14 rounded-2xl bg-stone-50 flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:scale-110 transition-all duration-300 ring-1 ring-stone-100 group-hover:ring-blue-600">
+                      <Icon className="w-7 h-7 text-stone-700 group-hover:text-white transition-colors" />
+                    </div>
+                    <CardTitle className="text-base font-semibold text-stone-900">{ind.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pb-6"><p className="text-stone-500 text-xs leading-relaxed">{ind.desc}</p></CardContent>
                 </Card>); })}
             </div>
           </div>
@@ -221,17 +237,22 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
             <div className="mb-16">
               <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 {purchaseOptions.map(opt => (
-                  <Card key={opt.name} className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${opt.highlighted ? 'border-2 border-blue-500 shadow-xl shadow-blue-500/10 scale-[1.02]' : 'border-stone-200 hover:shadow-lg'}`}>
-                    {opt.highlighted && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><Badge className="bg-blue-600 text-white px-4 py-1 text-sm">Mest populär</Badge></div>}
-                    <CardHeader className="pb-2"><CardTitle className="text-2xl text-stone-900">{opt.name}</CardTitle><p className="text-stone-500 text-sm">{opt.desc}</p></CardHeader>
-                    <CardContent className="flex-1">
-                      <div className="mb-6">
-                        <span className="text-4xl font-bold text-stone-900">{opt.price}</span>
-                        <span className="text-stone-500 text-lg"> {opt.unit}</span>
+                  <Card key={opt.name} className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${opt.highlighted ? 'border-2 border-blue-500 shadow-xl shadow-blue-500/10 scale-[1.02] bg-gradient-to-b from-blue-50/50 to-white' : 'border-stone-200 hover:shadow-lg hover:border-stone-300'}`}>
+                    {opt.highlighted && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><Badge className="bg-blue-600 text-white px-4 py-1 text-sm shadow-md shadow-blue-600/30">Mest populär</Badge></div>}
+                    <CardHeader className="pb-2 pt-6">
+                      <CardTitle className="text-2xl text-stone-900">{opt.name}</CardTitle>
+                      <p className="text-stone-500 text-sm leading-relaxed pt-1">{opt.desc}</p>
+                    </CardHeader>
+                    <CardContent className="flex-1 pt-4">
+                      <div className="mb-6 pb-6 border-b border-stone-100">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-5xl font-bold text-stone-900 tracking-tight">{opt.price}</span>
+                          <span className="text-stone-500 text-lg">{opt.unit}</span>
+                        </div>
                       </div>
-                      <ul className="space-y-3">{opt.features.map((f, i) => <li key={i} className="flex items-start gap-2.5"><CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" /><span className="text-sm text-stone-700">{f}</span></li>)}</ul>
+                      <ul className="space-y-3.5">{opt.features.map((f, i) => <li key={i} className="flex items-start gap-3"><div className="mt-0.5 w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center shrink-0"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /></div><span className="text-sm text-stone-700 leading-relaxed">{f}</span></li>)}</ul>
                     </CardContent>
-                    <CardFooter><a href="#kontakt" className="w-full"><Button className={`w-full rounded-full h-12 text-base font-medium ${opt.highlighted ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-stone-900 hover:bg-stone-800 text-white'}`}>Välj {opt.name} <ArrowRight className="w-4 h-4 ml-2" /></Button></a></CardFooter>
+                    <CardFooter className="pt-4 pb-6"><a href="#kontakt" className="w-full"><Button className={`w-full rounded-full h-12 text-base font-medium transition-all ${opt.highlighted ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/30' : 'bg-stone-900 hover:bg-stone-800 text-white'}`}>Välj {opt.name} <ArrowRight className="w-4 h-4 ml-2" /></Button></a></CardFooter>
                   </Card>
                 ))}
               </div>
@@ -256,24 +277,29 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">Från samtal till lansering — fyra enkla steg</h2>
               <p className="text-lg text-stone-400">Vi gör det enkelt. Du äger resultatet, vi bygger vägen dit.</p>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {/* Förbindande linje (desktop) */}
+              <div className="hidden lg:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
               {[{ n: '01', icon: MessageCircle, t: 'Vi pratar', d: 'Du berättar om ditt företag och vad du behöver. Vi lyssnar och ger råd om vilka funktioner som passar bäst.' }, { n: '02', icon: Palette, t: 'Vi designar', d: 'Vi skapar en unik design som speglar ditt företags identitet. Du får justera tills du är nöjd.' }, { n: '03', icon: Server, t: 'Vi bygger', d: 'Vi bygger din hemsida, ordnar .SE-domän, e-post, SSL och hosting. Allt driftklart.' }, { n: '04', icon: Shield, t: 'Du äger', d: 'Vid direktköp äger du allt från dag 1. Vid avbetalning äger du allt när perioden är slut. Du är alltid ägare av din kod och din domän.' }].map(s => { const Icon = s.icon; return (
                 <div key={s.n} className="relative text-center group">
-                  <div className="text-6xl font-black text-blue-600/20 mb-2 group-hover:text-blue-600/30 transition-colors">{s.n}</div>
-                  <div className="w-14 h-14 rounded-2xl bg-blue-600/20 flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-600/30 transition-colors"><Icon className="w-7 h-7 text-blue-400" /></div>
+                  <div className="relative inline-flex w-16 h-16 rounded-2xl bg-stone-800 ring-1 ring-stone-700 items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:ring-blue-500 transition-all duration-300">
+                    <Icon className="w-7 h-7 text-blue-400 group-hover:text-white transition-colors" />
+                    <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center ring-4 ring-stone-900">{s.n}</span>
+                  </div>
                   <h3 className="text-xl font-bold mb-3">{s.t}</h3>
-                  <p className="text-stone-400 leading-relaxed">{s.d}</p>
+                  <p className="text-stone-400 leading-relaxed text-sm">{s.d}</p>
                 </div>); })}
             </div>
           </div>
         </section>
 
         {/* STATS */}
-        <section className="py-12 bg-blue-600">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="relative py-16 bg-gradient-to-br from-blue-700 via-blue-600 to-blue-800 overflow-hidden">
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center text-white">
               {[['99.9%', 'Upptid'], ['< 2s', 'Laddtid'], ['24/7', 'Övervakning'], ['30 dag', 'Backup-historik']].map(([v, l]) => (
-                <div key={l}><div className="text-3xl sm:text-4xl font-bold">{v}</div><div className="text-blue-200 text-sm mt-1">{l}</div></div>
+                <div key={l} className="space-y-1"><div className="text-4xl sm:text-5xl font-bold tracking-tight">{v}</div><div className="text-blue-200 text-sm font-medium">{l}</div></div>
               ))}
             </div>
           </div>
@@ -285,11 +311,25 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
             <div className="text-center max-w-2xl mx-auto mb-16">
               <h2 className="text-3xl sm:text-4xl font-bold text-stone-900 mb-4">Vad våra kunder säger</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-6">
               {testimonials.map(t => (
-                <Card key={t.name} className="border-stone-200 hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader><div className="flex gap-0.5 mb-2">{Array.from({ length: t.stars }).map((_, i) => <Star key={i} className="w-5 h-5 fill-blue-400 text-blue-400" />)}</div></CardHeader>
-                  <CardContent><p className="text-stone-700 leading-relaxed italic mb-4">&ldquo;{t.text}&rdquo;</p><div><p className="font-semibold text-stone-900">{t.name}</p><p className="text-sm text-stone-500">{t.role}</p></div></CardContent>
+                <Card key={t.name} className="relative border-stone-200 hover:shadow-xl hover:shadow-stone-200/50 transition-all duration-300 hover:-translate-y-1 bg-white overflow-hidden">
+                  <div className="absolute top-4 right-5 text-7xl leading-none text-blue-100 font-serif select-none pointer-events-none">&ldquo;</div>
+                  <CardHeader className="pb-2 relative">
+                    <div className="flex gap-0.5 mb-3">{Array.from({ length: t.stars }).map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />)}</div>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    <p className="text-stone-700 leading-relaxed mb-6 text-[0.95rem]">&ldquo;{t.text}&rdquo;</p>
+                    <div className="flex items-center gap-3 pt-4 border-t border-stone-100">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white font-semibold text-sm flex items-center justify-center shrink-0">
+                        {t.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-stone-900 text-sm">{t.name}</p>
+                        <p className="text-xs text-stone-500">{t.role}</p>
+                      </div>
+                    </div>
+                  </CardContent>
                 </Card>
               ))}
             </div>
@@ -314,8 +354,30 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
                 </div>
               </div>
               <div className="relative">
-                <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-blue-200 via-blue-100 to-stone-200 flex items-center justify-center"><div className="text-center p-8"><Server className="w-20 h-20 text-blue-600 mx-auto mb-4" /><p className="text-blue-800 font-semibold text-lg">Professionell infrastruktur</p><p className="text-blue-700 text-sm mt-1">WHM/cPanel · LiteSpeed · CloudLinux</p></div></div>
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg"><div className="text-center"><div className="text-3xl font-bold">5+</div><div className="text-xs text-blue-200">Års erfarenhet</div></div></div>
+                <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-stone-100 via-blue-50 to-stone-100 flex items-center justify-center relative overflow-hidden border border-stone-200">
+                  <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #1d4ed8 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+                  <div className="text-center p-8 relative">
+                    <div className="w-20 h-20 rounded-2xl bg-white shadow-lg flex items-center justify-center mx-auto mb-5">
+                      <Server className="w-10 h-10 text-blue-600" />
+                    </div>
+                    <p className="text-stone-800 font-semibold text-lg">Professionell infrastruktur</p>
+                    <p className="text-stone-500 text-sm mt-1">WHM/cPanel · LiteSpeed · CloudLinux</p>
+                    <div className="mt-6 grid grid-cols-3 gap-3 max-w-xs mx-auto">
+                      {[['Imunify', Shield], ['LiteSpeed', Zap], ['99.9%', BarChart3]].map(([label, Ic]) => { const I = Ic as any; return (
+                        <div key={label as string} className="px-2 py-2 rounded-lg bg-white/70 backdrop-blur-sm border border-stone-200">
+                          <I className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+                          <p className="text-[10px] text-stone-600 font-medium">{label}</p>
+                        </div>
+                      ); })}
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-600/20">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold">5+</div>
+                    <div className="text-xs text-blue-100">Års erfarenhet</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -329,12 +391,14 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
             </div>
             <div className="space-y-3">
               {faqs.map((faq, i) => (
-                <div key={i} className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-                  <button className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 hover:bg-stone-50 transition-colors" onClick={() => setFaqOpen(faqOpen === i ? null : i)}>
+                <div key={i} className={`bg-white rounded-xl border overflow-hidden transition-all duration-200 ${faqOpen === i ? 'border-blue-300 shadow-md shadow-blue-100' : 'border-stone-200 hover:border-stone-300'}`}>
+                  <button className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 hover:bg-stone-50/50 transition-colors" onClick={() => setFaqOpen(faqOpen === i ? null : i)}>
                     <span className="font-medium text-stone-900">{faq.q}</span>
-                    <ChevronRight className={`w-5 h-5 text-stone-400 shrink-0 transition-transform duration-200 ${faqOpen === i ? 'rotate-90' : ''}`} />
+                    <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${faqOpen === i ? 'bg-blue-600 rotate-90' : 'bg-stone-100'}`}>
+                      <ChevronRight className={`w-4 h-4 transition-colors ${faqOpen === i ? 'text-white' : 'text-stone-500'}`} />
+                    </div>
                   </button>
-                  {faqOpen === i && <div className="px-6 pb-5 text-stone-600 leading-relaxed">{faq.a}</div>}
+                  {faqOpen === i && <div className="px-6 pb-5 -mt-1 text-stone-600 leading-relaxed text-[0.95rem]">{faq.a}</div>}
                 </div>
               ))}
             </div>
@@ -354,18 +418,33 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
                   ); })}
                 </div>
               </div>
-              <Card className="border-stone-200">
-                <CardHeader><CardTitle className="text-xl text-stone-900">Skicka förfrågan</CardTitle></CardHeader>
-                <CardContent>
-                  <form onSubmit={handleContact} className="space-y-5">
-                    <div><label className="block text-sm font-medium text-stone-700 mb-1.5">Företagets namn</label><Input name="company" placeholder="T.ex. Acme AB" className="h-11 border-stone-300" required /></div>
-                    <div className="grid sm:grid-cols-2 gap-5">
-                      <div><label className="block text-sm font-medium text-stone-700 mb-1.5">Ditt namn</label><Input name="name" placeholder="För- och efternamn" className="h-11 border-stone-300" required /></div>
-                      <div><label className="block text-sm font-medium text-stone-700 mb-1.5">E-post</label><Input name="email" type="email" placeholder="namn@foretag.se" className="h-11 border-stone-300" required /></div>
+              <Card className="border-stone-200 shadow-lg shadow-stone-200/40">
+                <CardHeader className="pb-2"><CardTitle className="text-xl text-stone-900">Skicka förfrågan</CardTitle><p className="text-sm text-stone-500">Vi återkommer inom 24 timmar — kostnadsfritt.</p></CardHeader>
+                <CardContent className="pt-4">
+                  <form onSubmit={handleContact} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Företagets namn</label>
+                      <Input name="company" placeholder="T.ex. Acme AB" className="h-11 border-stone-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" required />
                     </div>
-                    <div><label className="block text-sm font-medium text-stone-700 mb-1.5">Telefon</label><Input name="phone" type="tel" placeholder="070-123 45 67" className="h-11 border-stone-300" /></div>
-                    <div><label className="block text-sm font-medium text-stone-700 mb-1.5">Berätta om ditt företag</label><Textarea name="message" placeholder="Vilken bransch är ni i? Vad behöver ni för funktioner? Har ni redan en domän?" className="border-stone-300 min-h-[120px]" /></div>
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full h-12 text-base">{contactSent ? 'Tack! Vi hör av oss snart.' : 'Skicka förfrågan'}{!contactSent && <ArrowRight className="w-4 h-4 ml-2" />}</Button>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Ditt namn</label>
+                        <Input name="name" placeholder="För- och efternamn" className="h-11 border-stone-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" required />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">E-post</label>
+                        <Input name="email" type="email" placeholder="namn@foretag.se" className="h-11 border-stone-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" required />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Telefon</label>
+                      <Input name="phone" type="tel" placeholder="070-123 45 67" className="h-11 border-stone-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Berätta om ditt företag</label>
+                      <Textarea name="message" placeholder="Vilken bransch är ni i? Vad behöver ni för funktioner? Har ni redan en domän?" className="border-stone-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all min-h-[120px]" />
+                    </div>
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full h-12 text-base shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/30 transition-all">{contactSent ? <span className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" />Tack! Vi hör av oss snart.</span> : <>Skicka förfrågan <ArrowRight className="w-4 h-4 ml-2" /></>}</Button>
                   </form>
                 </CardContent>
               </Card>
@@ -375,18 +454,40 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
       </main>
 
       {/* FOOTER */}
-      <footer className="bg-stone-900 text-stone-400 py-12">
+      <footer className="bg-stone-900 text-stone-400 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
             <div className="sm:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-2.5 mb-4"><OwnliLogo size={36} markOnly /><span className="text-xl font-bold text-white">Ownli</span></div>
-              <p className="text-sm leading-relaxed">Professionella hemsidor för svenska företag. Design, hosting, domän och e-post — allt i ett.</p>
+              <p className="text-sm leading-relaxed mb-5">Professionella hemsidor för svenska företag. Design, hosting, domän och e-post — allt i ett.</p>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-800 text-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-stone-300">Alla system opererar normalt</span>
+              </div>
             </div>
-            <div><h4 className="text-white font-semibold mb-3">Tjänster</h4><ul className="space-y-2 text-sm"><li>Webbdesign</li><li>WordPress</li><li>.SE-domän</li><li>E-post</li><li>Hosting</li></ul></div>
-            <div><h4 className="text-white font-semibold mb-3">Support</h4><ul className="space-y-2 text-sm"><li>Kontakta oss</li><li>Vanliga frågor</li><li>cPanel-guide</li><li>Statussida</li></ul></div>
-            <div><h4 className="text-white font-semibold mb-3">Legal</h4><ul className="space-y-2 text-sm"><li>Villkor</li><li>Integritetspolicy</li><li>Cookies</li></ul></div>
+            <div>
+              <h4 className="text-white font-semibold mb-4 text-sm">Tjänster</h4>
+              <ul className="space-y-2.5 text-sm">
+                {['Webbdesign', 'WordPress', '.SE-domän', 'E-post', 'Hosting'].map(s => <li key={s} className="hover:text-blue-400 transition-colors cursor-pointer">{s}</li>)}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4 text-sm">Support</h4>
+              <ul className="space-y-2.5 text-sm">
+                {['Kontakta oss', 'Vanliga frågor', 'cPanel-guide', 'Statussida'].map(s => <li key={s} className="hover:text-blue-400 transition-colors cursor-pointer">{s}</li>)}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4 text-sm">Legal</h4>
+              <ul className="space-y-2.5 text-sm">
+                {['Villkor', 'Integritetspolicy', 'Cookies'].map(s => <li key={s} className="hover:text-blue-400 transition-colors cursor-pointer">{s}</li>)}
+              </ul>
+            </div>
           </div>
-          <div className="border-t border-stone-800 pt-8 text-sm text-center">&copy; {new Date().getFullYear()} Ownli. Alla rättigheter förbehållna.</div>
+          <div className="border-t border-stone-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+            <p className="text-stone-500">&copy; {new Date().getFullYear()} Ownli. Alla rättigheter förbehållna.</p>
+            <p className="text-stone-500 text-xs">Du äger. Vi bygger. <span className="text-stone-600">·</span> Byggt i Sverige</p>
+          </div>
         </div>
       </footer>
     </div>
