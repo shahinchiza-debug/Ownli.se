@@ -91,8 +91,12 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const [contactSent, setContactSent] = useState(false);
-  // Slumpa hero-variant vid varje sidladdning (refresh).
-  const [heroIdx] = useState(() => Math.floor(Math.random() * heroVariants.length));
+  // Slumpa hero-variant först på klienten (efter montering).
+  // Första renderingen (server + klient) använder index 0 — eliminerar hydration-mismatch.
+  const [heroIdx, setHeroIdx] = useState(0);
+  useEffect(() => {
+    setHeroIdx(Math.floor(Math.random() * heroVariants.length));
+  }, []);
   const hero = heroVariants[heroIdx];
 
   useEffect(() => {
@@ -159,8 +163,8 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40 w-full">
             <div className="max-w-3xl mx-auto text-center">
               <div className="mb-6 inline-flex items-center gap-2 text-blue-300 text-sm font-semibold tracking-[0.2em] uppercase"><span className="h-px w-8 bg-blue-400/60" />Du äger. Vi bygger.<span className="h-px w-8 bg-blue-400/60" /></div>
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6" suppressHydrationWarning>{hero.title[0]}<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">{hero.title[1]}</span>{hero.title[2]}</h1>
-              <p className="text-lg sm:text-xl text-stone-200 mb-10 max-w-2xl mx-auto leading-relaxed" suppressHydrationWarning>{hero.subtitle}</p>
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">{hero.title[0]}<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">{hero.title[1]}</span>{hero.title[2]}</h1>
+              <p className="text-lg sm:text-xl text-stone-200 mb-10 max-w-2xl mx-auto leading-relaxed">{hero.subtitle}</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="#priser"><Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 text-lg h-14 w-full sm:w-auto shadow-lg shadow-blue-600/25">Se våra priser <ArrowRight className="w-5 h-5 ml-2" /></Button></a>
                 <a href="#process"><Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 text-lg h-14 w-full sm:w-auto">Så fungerar det</Button></a>
@@ -363,12 +367,16 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
                     <p className="text-stone-800 font-semibold text-lg">Professionell infrastruktur</p>
                     <p className="text-stone-500 text-sm mt-1">WHM/cPanel · LiteSpeed · CloudLinux</p>
                     <div className="mt-6 grid grid-cols-3 gap-3 max-w-xs mx-auto">
-                      {[['Imunify', Shield], ['LiteSpeed', Zap], ['99.9%', BarChart3]].map(([label, Ic]) => { const I = Ic as any; return (
-                        <div key={label as string} className="px-2 py-2 rounded-lg bg-white/70 backdrop-blur-sm border border-stone-200">
-                          <I className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+                      {([
+                        ['Imunify', Shield],
+                        ['LiteSpeed', Zap],
+                        ['99.9%', BarChart3],
+                      ] as Array<[string, React.ComponentType<{ className?: string }>]>).map(([label, Ic]) => (
+                        <div key={label} className="px-2 py-2 rounded-lg bg-white/70 backdrop-blur-sm border border-stone-200">
+                          <Ic className="w-4 h-4 text-blue-600 mx-auto mb-1" />
                           <p className="text-[10px] text-stone-600 font-medium">{label}</p>
                         </div>
-                      ); })}
+                      ))}
                     </div>
                   </div>
                 </div>
