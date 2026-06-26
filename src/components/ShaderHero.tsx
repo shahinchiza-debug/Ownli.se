@@ -4,81 +4,129 @@ import { useEffect, useRef } from 'react';
 
 /**
  * ShaderHero — Animerad WebGL2 fragment shader som bakgrund.
- * Visar rörande stjärnor/partiklar och rymd-moln.
  *
- * Shader hämtad från ravikatiyar162/animated-shader-hero och
- * anpassad för Ownli (amber/stone tema).
+ * Visar flytande blåa moln med glödande former och musinteraktion.
+ * Helt utan API — bara en <canvas> och GLSL-kod på GPU:n.
+ *
+ * Shader inspirerad av animated-shader-hero (ravikatiyar162),
+ * anpassad för Ownli med djup blå palett (DEEP / MID / HIGHLIGHT).
  */
+
+/* ─────────────────────────────────────────────────────────────
+   SHADER-KÄLLKOD
+   ───────────────────────────────────────────────────────────── */
+
+const VERTEX_SHADER = `#version 300 es
+in vec2 position;
+void main() {
+  gl_Position = vec4(position, 0.0, 1.0);
+}`;
 
 const FRAGMENT_SHADER = `#version 300 es
 precision highp float;
 out vec4 O;
-uniform vec2 resolution;
-uniform float time;
+
+uniform vec2  resolution;    // canvas-storlek i pixlar
+uniform float time;          // tid i sekunder
+uniform vec2  mouse;         // musposition i normaliserade koordinater [0..1]
+uniform float mouseStrength; // hur mycket musen påverkar (0 = ingen, 1 = aktiv)
+
 #define FC gl_FragCoord.xy
-#define T time
-#define R resolution
-#define MN min(R.x,R.y)
+#define T  time
+#define R  resolution
+#define MN min(R.x, R.y)
 
-// Returns a pseudo random number for a given point (white noise)
+// Pseudo-random för white noise
 float rnd(vec2 p) {
-  p=fract(p*vec2(12.9898,78.233));
-  p+=dot(p,p+34.56);
-  return fract(p.x*p.y);
+  p = fract(p * vec2(12.9898, 78.233));
+  p += dot(p, p + 34.56);
+  return fract(p.x * p.y);
 }
-// Returns a pseudo random number for a given point (value noise)
+
+// Value noise (smooth interpolation av rnd)
 float noise(in vec2 p) {
-  vec2 i=floor(p), f=fract(p), u=f*f*(3.-2.*f);
-  float a=rnd(i),
-        b=rnd(i+vec2(1,0)),
-        c=rnd(i+vec2(0,1)),
-        d=rnd(i+1.);
-  return mix(mix(a,b,u.x),mix(c,d,u.x),u.y);
+  vec2 i = floor(p), f = fract(p), u = f * f * (3.0 - 2.0 * f);
+  float a = rnd(i),
+        b = rnd(i + vec2(1.0, 0.0)),
+        c = rnd(i + vec2(0.0, 1.0)),
+        d = rnd(i + 1.0);
+  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
 }
-// Returns a pseudo random number for a given point (fractal noise)
+
+// Fractal Brownian Motion — flera oktaver av noise staplade på varandra
 float fbm(vec2 p) {
-  float t=.0, a=1.; mat2 m=mat2(1.,-.5,.2,1.2);
-  for (int i=0; i<5; i++) {
-    t+=a*noise(p);
-    p*=2.*m;
-    a*=.5;
+  float t = 0.0, a = 1.0;
+  mat2 m = mat2(1.0, -0.5, 0.2, 1.2);
+  for (int i = 0; i < 5; i++) {
+    t += a * noise(p);
+    p *= 2.0 * m;
+    a *= 0.5;
   }
   return t;
 }
+
+// Molnliknande fält
 float clouds(vec2 p) {
-  float d=1., t=.0;
-  for (float i=.0; i<3.; i++) {
-    float a=d*fbm(i*10.+p.x*.2+.2*(1.+i)*p.y+d+i*i+p);
-    t=mix(t,d,a);
-    d=a;
-    p*=2./(i+1.);
+  float d = 1.0, t = 0.0;
+  for (float i = 0.0; i < 3.0; i++) {
+    float a = d * fbm(i * 10.0 + p.x * 0.2 + 0.2 * (1.0 + i) * p.y + d + i * i + p);
+    t = mix(t, d, a);
+    d = a;
+    p *= 2.0 / (i + 1.0);
   }
   return t;
 }
+
+// Blå palett: djup marin -> elektrisk blå -> cyan-topp
+const vec3 DEEP      = vec3(0.02, 0.05, 0.18);   // djup marin
+const vec3 MID       = vec3(0.10, 0.35, 0.85);   // elektrisk blå
+const vec3 HIGHLIGHT = vec3(0.45, 0.80, 1.00);   // ljus cyan
+
 void main(void) {
-  vec2 uv=(FC-.5*R)/MN,st=uv*vec2(2,1);
-  vec3 col=vec3(0);
-  float bg=clouds(vec2(st.x+T*.5,-st.y));
-  uv*=1.-.3*(sin(T*.2)*.5+.5);
-  for (float i=1.; i<12.; i++) {
-    uv+=.1*cos(i*vec2(.1+.01*i, .8)+i*i+T*.5+.1*uv.x);
-    vec2 p=uv;
-    float d=length(p);
-    // Stjärnor: blå-tonad (minskar rött, ökar blått)
-    col+=.00125/d*(cos(sin(i)*vec3(1,2,3))+1.)*vec3(0.5, 0.8, 1.1);
-    float b=noise(i+p+bg*1.731);
-    col+=.002*b/length(max(p,vec2(b*p.x*.02,p.y)))*vec3(0.4, 0.7, 1.0);
-    // Ownli blå-tema: kallt blått/ljusblått istället för varmt guld
-    col=mix(col, vec3(bg*0.10, bg*0.45, bg*0.85), d);
+  vec2 uv = (FC - 0.5 * R) / MN;
+  vec2 st = uv * vec2(2.0, 1.0);
+
+  // Muspåverkan: skjuter UV-koordinaten lite åt musens håll
+  vec2 mouseOffset = (mouse - 0.5) * mouseStrength * 0.4;
+  st += mouseOffset;
+
+  vec3 col = vec3(0.0);
+  float bg = clouds(vec2(st.x + T * 0.5, -st.y));
+
+  uv *= 1.0 - 0.3 * (sin(T * 0.2) * 0.5 + 0.5);
+
+  // 12 lager av flytande, glödande former
+  for (float i = 1.0; i < 12.0; i++) {
+    uv += 0.1 * cos(i * vec2(0.1 + 0.01 * i, 0.8) + i * i + T * 0.5 + 0.1 * uv.x);
+    vec2 p = uv;
+    float d = length(p);
+
+    // Modulera mellan blå toner
+    vec3 glowTint = mix(MID, HIGHLIGHT, 0.5 + 0.5 * sin(i));
+    col += 0.00125 / d * glowTint * (cos(sin(i) * vec3(1.0, 2.0, 3.0)) + 1.0);
+
+    float b = noise(i + p + bg * 1.731);
+    col += 0.002 * b / length(max(p, vec2(b * p.x * 0.02, p.y)));
+
+    // Mixa mot djup marin i utkanten (där d är stor)
+    vec3 bgColor = mix(DEEP, MID, bg);
+    col = mix(col, bgColor, d);
   }
-  O=vec4(col,1);
+
+  // Subtil vignette för biokänsla
+  float vignette = smoothstep(1.4, 0.3, length((FC - 0.5 * R) / MN));
+  col *= 0.6 + 0.4 * vignette;
+
+  // Ljusare cyan-toppskärning i mitten där intensiteten är hög
+  float glow = clamp(max(col.b, col.g) - col.r, 0.0, 1.0);
+  col += HIGHLIGHT * glow * 0.08;
+
+  O = vec4(col, 1.0);
 }`;
 
-const VERTEX_SHADER = `#version 300 es
-in vec2 a_position;
-void main() {
-  gl_Position = vec4(a_position, 0.0, 1.0);
-}`;
+/* ─────────────────────────────────────────────────────────────
+   REACT-KOMPONENT
+   ───────────────────────────────────────────────────────────── */
 
 interface ShaderHeroProps {
   /** Extra CSS-klasser för containern */
@@ -90,22 +138,23 @@ interface ShaderHeroProps {
 export default function ShaderHero({ className = '', resolutionScale = 0.75 }: ShaderHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
-  const glRef = useRef<WebGL2RenderingContext | null>(null);
-  const programRef = useRef<WebGLProgram | null>(null);
-  const uniformsRef = useRef<{ resolution: WebGLUniformLocation | null; time: WebGLUniformLocation | null }>({ resolution: null, time: null });
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl2', { antialias: true, alpha: false, premultipliedAlpha: false });
+    /* --- 1. Skapa WebGL2-kontext --- */
+    const gl = canvas.getContext('webgl2', {
+      antialias: true,
+      alpha: false,
+      premultipliedAlpha: false,
+    });
     if (!gl) {
-      console.warn('WebGL2 not supported — ShaderHero fallbacks to a static gradient.');
+      console.warn('WebGL2 stöds inte — ShaderHero faller tillbaka på statisk gradient.');
       return;
     }
-    glRef.current = gl;
 
-    // Kompilera shaders
+    /* --- 2. Kompilera shaders --- */
     const compile = (type: number, src: string) => {
       const sh = gl.createShader(type);
       if (!sh) throw new Error('Kunde inte skapa shader');
@@ -139,22 +188,32 @@ export default function ShaderHero({ className = '', resolutionScale = 0.75 }: S
       return;
     }
 
-    programRef.current = program;
     gl.useProgram(program);
 
-    // Fullscreen quad
+    /* --- 3. Fullscreen quad (TRIANGLE_STRIP, 4 hörn) --- */
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
-    const posLoc = gl.getAttribLocation(program, 'a_position');
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([
+        -1,  1,
+        -1, -1,
+         1,  1,
+         1, -1,
+      ]),
+      gl.STATIC_DRAW,
+    );
+    const posLoc = gl.getAttribLocation(program, 'position');
     gl.enableVertexAttribArray(posLoc);
     gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
 
-    uniformsRef.current = {
-      resolution: gl.getUniformLocation(program, 'resolution'),
-      time: gl.getUniformLocation(program, 'time'),
-    };
+    /* --- 4. Hämta uniforms --- */
+    const uResolution    = gl.getUniformLocation(program, 'resolution');
+    const uTime          = gl.getUniformLocation(program, 'time');
+    const uMouse         = gl.getUniformLocation(program, 'mouse');
+    const uMouseStrength = gl.getUniformLocation(program, 'mouseStrength');
 
+    /* --- 5. Resize-hantering (DPR-medveten) --- */
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const w = Math.max(1, Math.floor(window.innerWidth * dpr * resolutionScale));
@@ -168,23 +227,52 @@ export default function ShaderHero({ className = '', resolutionScale = 0.75 }: S
     resize();
     window.addEventListener('resize', resize);
 
-    const start = performance.now();
+    /* --- 6. Musinteraktion (med mjuk easing) --- */
+    let mouseX = 0.5, mouseY = 0.5;
+    let targetMouseX = 0.5, targetMouseY = 0.5;
+    let mouseStrength = 0;
+    let targetStrength = 0;
+
+    const onPointerMove = (e: PointerEvent) => {
+      targetMouseX = e.clientX / window.innerWidth;
+      targetMouseY = 1.0 - (e.clientY / window.innerHeight); // vänd Y för shader-koordinater
+      targetStrength = 1.0;
+    };
+    const onPointerLeave = () => { targetStrength = 0; };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerleave', onPointerLeave);
+    window.addEventListener('pointerout', onPointerLeave);
+
+    /* --- 7. Animationsloop --- */
+    const startTime = performance.now();
     const render = () => {
-      const t = (performance.now() - start) / 1000;
-      gl.uniform2f(uniformsRef.current.resolution, canvas.width, canvas.height);
-      gl.uniform1f(uniformsRef.current.time, t);
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      // Mjuk interpolation mot målvärden
+      mouseX        += (targetMouseX  - mouseX) * 0.06;
+      mouseY        += (targetMouseY  - mouseY) * 0.06;
+      mouseStrength += (targetStrength - mouseStrength) * 0.05;
+
+      const t = (performance.now() - startTime) / 1000;
+
+      gl.uniform2f(uResolution, canvas.width, canvas.height);
+      gl.uniform1f(uTime, t);
+      gl.uniform2f(uMouse, mouseX, mouseY);
+      gl.uniform1f(uMouseStrength, mouseStrength);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       rafRef.current = requestAnimationFrame(render);
     };
     render();
 
+    /* --- 8. Cleanup --- */
     return () => {
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerleave', onPointerLeave);
+      window.removeEventListener('pointerout', onPointerLeave);
       if (buffer) gl.deleteBuffer(buffer);
       if (program) gl.deleteProgram(program);
-      glRef.current = null;
-      programRef.current = null;
     };
   }, [resolutionScale]);
 
