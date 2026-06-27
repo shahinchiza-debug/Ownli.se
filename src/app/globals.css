@@ -6,8 +6,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -116,21 +117,32 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     font-feature-settings: "cv11", "ss01", "ss03";
   }
-  html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 5rem;
-  }
-  /* Balansera rubriker så radbrytningar blir mer estetiska */
-  h1, h2, h3 {
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display), system-ui, sans-serif;
     text-wrap: balance;
+    font-weight: 700;
+  }
+  h1 {
+    letter-spacing: -0.03em;
+  }
+  h2 {
+    letter-spacing: -0.02em;
+  }
+  h3 {
+    letter-spacing: -0.01em;
   }
   p {
     text-wrap: pretty;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
   }
   /* Custom selection */
   ::selection {
@@ -156,4 +168,34 @@
     background-clip: padding-box;
     border: 2px solid transparent;
   }
+  /* Global focus-visible — WCAG AA compliant */
+  :focus-visible {
+    outline: 2px solid oklch(0.55 0.15 250);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* FAQ smooth expand/collapse */
+.faq-expand {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 250ms ease-out;
+}
+.faq-expand.open {
+  grid-template-rows: 1fr;
+}
+.faq-expand > div {
+  overflow: hidden;
+}
+
+/* Scroll-triggered fade-in */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 400ms ease-out, transform 400ms ease-out;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
