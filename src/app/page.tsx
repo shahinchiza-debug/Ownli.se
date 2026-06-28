@@ -163,7 +163,6 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
             </a>
             <div className="hidden md:flex items-center gap-6">
               {navLinks.map(l => <a key={l.href} href={l.href} className="text-sm font-medium text-stone-600 hover:text-blue-700 transition-colors">{l.label}</a>)}
-              <Button variant="outline" size="sm" className="border-stone-300 text-stone-700 hover:bg-stone-50 rounded-full" onClick={onLogin}>Logga in</Button>
               <a href="#kontakt"><Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 active:scale-[0.97] transition-transform">Kom igång</Button></a>
             </div>
             <button className="md:hidden p-2 text-stone-700" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Meny">
@@ -175,7 +174,6 @@ function LandingPage({ onLogin }: { onLogin: () => void }) {
           <div className="md:hidden bg-white border-t border-stone-200 shadow-lg">
             <div className="px-4 py-4 space-y-3">
               {navLinks.map(l => <a key={l.href} href={l.href} className="block py-2 text-stone-700 font-medium hover:text-blue-700" onClick={() => setMobileOpen(false)}>{l.label}</a>)}
-              <Button variant="outline" className="w-full border-stone-300 rounded-full" onClick={() => { setMobileOpen(false); onLogin(); }}>Logga in</Button>
               <a href="#kontakt" onClick={() => setMobileOpen(false)}><Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full mt-2">Kom igång</Button></a>
             </div>
           </div>
