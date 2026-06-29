@@ -66,20 +66,73 @@ const faqs = [
   { q: 'Vilka branscher servar ni?', a: 'Alla! Från restauranger och hantverkare till juridik och e-handel. Vi anpassar varje hemsida efter er bransch och era behov.' },
 ];
 
-/* ─── Scroll reveal hook ─── */
-function useReveal() {
+/* ─── Scroll reveal hook — supports different animation classes ─── */
+function useReveal(animateClass = 'reveal') {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { el.classList.add('visible'); observer.unobserve(el); } },
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+      { threshold: 0.08, rootMargin: '0px 0px -48px 0px' }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
   return ref;
+}
+
+/* ─── Counter hook — animates number from 0 → target ─── */
+function useCounter(target: number, duration = 1600) {
+  const [count, setCount] = useState(0);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    const start = performance.now();
+    const step = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target, duration]);
+
+  return count;
+}
+
+/* ─── Stat counter component — animated number on scroll ─── */
+function StatCounter({ value, prefix = '', suffix = '', label }: { value: number; prefix?: string; suffix?: string; label: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const count = useCounter(visible ? value : 0, 1400);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.unobserve(el); } },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Format decimal values (like 99.9)
+  const display = value % 1 !== 0 ? count.toFixed(1) : count;
+
+  return (
+    <div ref={ref} className="space-y-1">
+      <div className="text-4xl sm:text-5xl font-bold tracking-tight font-[family-name:var(--font-display)]">
+        {prefix}{display}{suffix}
+      </div>
+      <div className="text-stone-500 text-sm font-medium">{label}</div>
+    </div>
+  );
 }
 
 /* ═══════════════════════════════════════════
@@ -126,15 +179,18 @@ function LandingPage() {
     } catch { /* silent */ }
   };
 
-  // Scroll reveal refs
+  // Scroll reveal refs — different animation types for visual variety
   const servicesRef = useReveal();
   const industriesRef = useReveal();
   const pricingRef = useReveal();
   const processRef = useReveal();
+  const statsRef = useReveal();
   const testimonialsRef = useReveal();
-  const aboutRef = useReveal();
+  const aboutLeftRef = useReveal();
+  const aboutRightRef = useReveal();
   const faqRef = useReveal();
-  const contactRef = useReveal();
+  const contactLeftRef = useReveal();
+  const contactRightRef = useReveal();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -198,14 +254,14 @@ function LandingPage() {
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"><div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center pt-2"><div className="w-1.5 h-3 rounded-full bg-white/50" /></div></div>
         </section>
 
-        {/* SERVICES — 2+1 asymmetric grid */}
+        {/* SERVICES — fade up header + staggered cards */}
         <section id="tjanster" className="py-24 sm:py-32 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-xl mb-16 reveal" ref={servicesRef}>
               <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Allt ditt företag behöver på nätet</h2>
               <p className="text-lg text-stone-500 leading-relaxed">Från domän och hosting till design och e-post — vi hanterar allt tekniskt så att du kan fokusera på din verksamhet.</p>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 stagger-children" ref={useReveal()}>
               {services.map((s, i) => { const Icon = s.icon; return (
                 <Card key={s.title} className={`group relative border-stone-200 hover:border-stone-400 hover:shadow-lg transition-all duration-300 overflow-hidden ${i === 0 ? 'sm:col-span-2 lg:col-span-1' : ''}`}>
                   <div className="absolute top-0 left-0 right-0 h-0.5 bg-stone-900 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
@@ -224,15 +280,15 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* INDUSTRIES — Horizontal scroll on mobile */}
+        {/* INDUSTRIES — staggered cards */}
         <section id="branscher" className="py-24 sm:py-32 bg-stone-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-16 reveal" ref={industriesRef}>
+            <div className="text-center max-w-2xl mx-auto mb-16 reveal-blur" ref={industriesRef}>
               <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Vi servar alla branscher</h2>
               <p className="text-lg text-stone-500">Oavsett bransch hjälper vi ditt företag att synas online</p>
             </div>
             {/* Mobile: horizontal scroll. Desktop: grid */}
-            <div className="flex lg:grid lg:grid-cols-4 gap-5 overflow-x-auto pb-4 lg:pb-0 snap-x snap-mandatory -mx-4 px-4 lg:mx-0 lg:px-0 scrollbar-hide">
+            <div className="flex lg:grid lg:grid-cols-4 gap-5 overflow-x-auto pb-4 lg:pb-0 snap-x snap-mandatory -mx-4 px-4 lg:mx-0 lg:px-0 scrollbar-hide stagger-children" ref={useReveal()}>
               {industries.map(ind => { const Icon = ind.icon; return (
                 <Card key={ind.name} className="group border-stone-200 hover:border-stone-400 hover:shadow-lg transition-all duration-300 text-center bg-white min-w-[200px] lg:min-w-0 snap-start shrink-0 lg:shrink">
                   <CardHeader className="items-center pb-2 pt-6">
@@ -247,16 +303,16 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* PRICING — Clean with breathing room */}
+        {/* PRICING — blur in + scale */}
         <section id="priser" className="py-24 sm:py-32 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-16 reveal" ref={pricingRef}>
+            <div className="text-center max-w-2xl mx-auto mb-16 reveal-blur" ref={pricingRef}>
               <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Transparenta priser</h2>
               <p className="text-lg text-stone-500">Du äger, vi bygger. Alla priser exkl. moms.</p>
             </div>
 
             <div className="mb-20">
-              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto stagger-children" ref={useReveal()}>
                 {purchaseOptions.map(opt => (
                   <Card key={opt.name} className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${opt.highlighted ? 'border-2 border-blue-600 shadow-xl shadow-blue-500/10 scale-[1.02] bg-gradient-to-b from-blue-50/50 to-white' : 'border-stone-200 hover:shadow-lg hover:border-stone-300'}`}>
                     {opt.highlighted && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><Badge className="bg-blue-600 text-white px-4 py-1 text-sm shadow-md shadow-blue-600/30">Mest populär</Badge></div>}
@@ -290,14 +346,14 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* PROCESS — Dark, compact */}
+        {/* PROCESS — Dark, staggered step animation */}
         <section id="process" className="py-24 sm:py-32 bg-stone-900 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-16 reveal" ref={processRef}>
+            <div className="text-center max-w-2xl mx-auto mb-16 reveal-blur" ref={processRef}>
               <h2 className="text-3xl sm:text-5xl font-bold mb-4 font-[family-name:var(--font-display)]">Fyra enkla steg</h2>
               <p className="text-lg text-stone-400">Från samtal till lansering. Vi gör det enkelt.</p>
             </div>
-            <div className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-8 process-stagger" ref={useReveal()}>
               <div className="hidden lg:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-stone-700 to-transparent" />
               {[{ n: '01', icon: MessageCircle, t: 'Vi pratar', d: 'Du berättar om ditt företag och vad du behöver. Vi lyssnar och ger råd.' }, { n: '02', icon: Palette, t: 'Vi designar', d: 'Vi skapar en unik design som speglar ditt företags identitet. Du justerar tills du är nöjd.' }, { n: '03', icon: Server, t: 'Vi bygger', d: 'Vi bygger din hemsida, ordnar .SE-domän, e-post, SSL och hosting. Allt driftklart.' }, { n: '04', icon: Shield, t: 'Du äger', d: 'Vid direktköp äger du allt från dag 1. Vid avbetalning äger du allt när perioden är slut.' }].map(s => { const Icon = s.icon; return (
                 <div key={s.n} className="relative text-center group">
@@ -312,25 +368,26 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* STATS — Compact, punchy */}
+        {/* STATS — Animated counters */}
         <section className="relative py-14 bg-stone-950 overflow-hidden">
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center text-white">
-              {[['99.9%', 'Upptid'], ['< 2s', 'Laddtid'], ['24/7', 'Övervakning'], ['30 dag', 'Backup-historik']].map(([v, l]) => (
-                <div key={l} className="space-y-1"><div className="text-4xl sm:text-5xl font-bold tracking-tight font-[family-name:var(--font-display)]">{v}</div><div className="text-stone-500 text-sm font-medium">{l}</div></div>
-              ))}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center text-white stat-glow" ref={statsRef}>
+              <StatCounter value={99.9} suffix="%" label="Upptid" />
+              <StatCounter value={2} prefix="< " suffix="s" label="Laddtid" />
+              <StatCounter value={24} suffix="/7" label="Övervakning" />
+              <StatCounter value={30} suffix=" dag" label="Backup-historik" />
             </div>
           </div>
         </section>
 
-        {/* TESTIMONIALS — With larger quote marks and breathing room */}
+        {/* TESTIMONIALS — staggered cards */}
         <section className="py-24 sm:py-32 bg-stone-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-16 reveal" ref={testimonialsRef}>
+            <div className="text-center max-w-2xl mx-auto mb-16 reveal-blur" ref={testimonialsRef}>
               <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Vad våra kunder säger</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-8 stagger-children" ref={useReveal()}>
               {testimonials.map(t => (
                 <Card key={t.name} className="relative border-stone-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white overflow-hidden">
                   <div className="absolute top-2 right-4 text-8xl leading-none text-stone-100 font-serif select-none pointer-events-none">&ldquo;</div>
@@ -355,11 +412,11 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* ABOUT — Asymmetric: text left, visual right */}
+        {/* ABOUT — Asymmetric: left slides in, right scales in */}
         <section id="om-oss" className="py-24 sm:py-32 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid lg:grid-cols-5 gap-16 items-center reveal" ref={aboutRef}>
-              <div className="lg:col-span-3">
+            <div className="grid lg:grid-cols-5 gap-16 items-center">
+              <div className="lg:col-span-3 reveal-left" ref={aboutLeftRef}>
                 <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-8 font-[family-name:var(--font-display)]">Vi förstår svenska företag — och webben</h2>
                 <div className="space-y-5 text-stone-500 leading-relaxed text-lg">
                   <p>Ownli grundades med en enkel idé: svenska företag förtjänar bättre hemsidor. För ofta ser vi fantastiska företag med dåliga, långsamma eller osäkra hemsidor som kostar för mycket.</p>
@@ -371,7 +428,7 @@ function LandingPage() {
                   ); })}
                 </div>
               </div>
-              <div className="lg:col-span-2 relative">
+              <div className="lg:col-span-2 relative reveal-right" ref={aboutRightRef}>
                 <div className="aspect-[3/4] rounded-2xl bg-stone-100 flex items-center justify-center relative overflow-hidden border border-stone-200">
                   <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #1c1917 1px, transparent 0)', backgroundSize: '24px 24px' }} />
                   <div className="text-center p-8 relative">
@@ -393,10 +450,10 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* FAQ — With smooth animation */}
+        {/* FAQ — Smooth animation */}
         <section className="py-24 sm:py-32 bg-stone-50">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16 reveal" ref={faqRef}>
+            <div className="text-center mb-16 reveal-blur" ref={faqRef}>
               <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 font-[family-name:var(--font-display)]">Frågor och svar</h2>
             </div>
             <div className="space-y-3">
@@ -419,11 +476,11 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* CONTACT — Asymmetric: info left, form right */}
+        {/* CONTACT — Left slides in, right scales in */}
         <section id="kontakt" className="py-24 sm:py-32 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid lg:grid-cols-5 gap-16 reveal" ref={contactRef}>
-              <div className="lg:col-span-2">
+            <div className="grid lg:grid-cols-5 gap-16">
+              <div className="lg:col-span-2 reveal-left" ref={contactLeftRef}>
                 <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-6 font-[family-name:var(--font-display)]">Redo att synas online?</h2>
                 <p className="text-lg text-stone-500 mb-10 leading-relaxed">Berätta om ditt företag och vilka behov du har. Vi återkommer med ett förslag inom 24 timmar — helt kostnadsfritt.</p>
                 <div className="space-y-6">
@@ -432,7 +489,7 @@ function LandingPage() {
                   ); })}
                 </div>
               </div>
-              <div className="lg:col-span-3">
+              <div className="lg:col-span-3 reveal-right" ref={contactRightRef}>
                 <Card className="border-stone-200 shadow-lg shadow-stone-200/40">
                   <CardHeader className="pb-2"><CardTitle className="text-xl text-stone-900 font-[family-name:var(--font-display)]">Skicka förfrågan</CardTitle><p className="text-sm text-stone-500">Vi återkommer inom 24 timmar — kostnadsfritt.</p></CardHeader>
                   <CardContent className="pt-4">
