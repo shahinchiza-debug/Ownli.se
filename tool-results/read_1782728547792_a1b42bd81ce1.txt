@@ -1,0 +1,927 @@
+     1→'use client';
+     2→
+     3→import { useState, useEffect, useCallback, useRef } from 'react';
+     4→import {
+     5→  Globe, Mail, Shield, Smartphone, Clock, CheckCircle2, ArrowRight,
+     6→  Menu, X, ChevronRight, Star, UtensilsCrossed, Server, Palette, Search,
+     7→  MessageCircle, BarChart3, Headphones, Hammer, Heart, Scale, ShoppingCart,
+     8→  GraduationCap, Building, Sparkles, Home, Users, FileText, Inbox, Settings,
+     9→  LogOut, Plus, Trash2, Eye, EyeOff, ChevronDown, TrendingUp, DollarSign,
+    10→  AlertCircle, CheckCircle, XCircle, Edit, LayoutDashboard, FolderOpen,
+    11→  Receipt, MessageSquare, Zap,
+    12→} from 'lucide-react';
+    13→import { Button } from '@/components/ui/button';
+    14→import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+    15→import { Badge } from '@/components/ui/badge';
+    16→import { Input } from '@/components/ui/input';
+    17→import { Textarea } from '@/components/ui/textarea';
+    18→import ShaderHero from '@/components/ShaderHero';
+    19→import OwnliLogo from '@/components/OwnliLogo';
+    20→
+    21→/* ─── Types ─── */
+    22→type View = 'landing' | 'login' | 'dashboard';
+    23→type DashSection = 'overview' | 'customers' | 'projects' | 'invoices' | 'messages' | 'settings';
+    24→interface Customer { id: string; companyName: string; contactName: string; email: string; phone?: string; industry?: string; plan: string; status: string; notes?: string; createdAt: string; }
+    25→interface Project { id: string; customerId: string; name: string; description?: string; status: string; startDate: string; customer?: { companyName: string }; }
+    26→interface Invoice { id: string; customerId: string; amount: number; description: string; status: string; dueDate: string; customer?: { companyName: string }; }
+    27→interface ContactMsg { id: string; name: string; email: string; phone?: string; company?: string; message: string; read: boolean; createdAt: string; }
+    28→interface Stats { totalCustomers: number; activeProjects: number; revenueThisMonth: number; unpaidInvoices: number; unreadMessages: number; recentCustomers: Customer[]; recentMessages: ContactMsg[]; }
+    29→
+    30→/* ─── Data ─── */
+    31→const industries = [
+    32→  { icon: UtensilsCrossed, name: 'Restaurang & café', desc: 'Online-meny, bordsbokning, catering' },
+    33→  { icon: Hammer, name: 'Hantverkare & bygg', desc: 'Portfolio, offerter, projektbilder' },
+    34→  { icon: Heart, name: 'Hälsa & vård', desc: 'Bokningssystem, personalpresentation' },
+    35→  { icon: Scale, name: 'Juridik & ekonomi', desc: 'Tjänstebeskrivningar, bokning' },
+    36→  { icon: ShoppingCart, name: 'Handel & e-handel', desc: 'Webbutik, produktkatalog' },
+    37→  { icon: GraduationCap, name: 'Utbildning', desc: 'Kurser, anmälan, CMS' },
+    38→  { icon: Building, name: 'Fastighet', desc: 'Objektlistning, kontaktformulär' },
+    39→  { icon: Sparkles, name: 'Friskvård & skönhet', desc: 'Bokning, galleri, behandlingar' },
+    40→];
+    41→
+    42→const purchaseOptions = [
+    43→  { name: 'Direktköp', price: '35 000', unit: 'kr', desc: 'Kunden köper hemsidan direkt och äger den fullt ut från dag ett.', features: ['Full äganderätt från dag 1', 'Drift och hosting väljs fritt', 'Ingen bindningstid', 'All kod och material tillhör dig', 'Fri att flytta när du vill'], highlighted: false },
+    44→  { name: 'Avbetalning 2 år', price: '2 000', unit: 'kr/månaden', desc: 'Hemsidan betalas av under 24 månader, varefter full äganderätt övergår till kunden.', features: ['Betalning över 24 månader', 'Hosting, drift och support ingår', '1 större omfaktorering ingår', 'Full äganderätt efter perioden', 'Välj driftpartner fritt efteråt'], highlighted: true },
+    45→];
+    46→
+    47→/* Hero-varianter: [före, markera, efter] + underrubrik. */
+    48→const heroVariants: { title: [string, string, string]; subtitle: string }[] = [
+    49→  { title: ['Ditt företag förtjänar en ', 'fantastisk', ' hemsida'], subtitle: 'Sikta högre. Sikta mot stjärnorna.' },
+    50→  { title: ['Ditt företag förtjänar en hemsida som ', 'sticker ut', ''], subtitle: 'Varför nöja sig med mindre när ni kan sikta mot stjärnorna?' },
+    51→  { title: ['Ditt företag förtjänar ', 'mer', ' än bara en hemsida'], subtitle: 'Det förtjänar något som lyfter er mot stjärnorna.' },
+    52→  { title: ['En fantastisk hemsida för företag som vill ', 'högre', ''], subtitle: 'Sikta mot stjärnorna med en webbplats som verkligen syns.' },
+    53→  { title: ['Ditt företag förtjänar en ', 'fantastisk', ' hemsida'], subtitle: 'Bygg något större. Nå längre. Sikta mot stjärnorna.' },
+    54→];
+    55→
+    56→const services = [
+    57→  { icon: Palette, title: 'Skräddarsydd design', desc: 'Unik och modern webbdesign anpassad efter ditt företags profil och varumärke. Mobilanpassad, snabb och vacker — varje gång.' },
+    58→  { icon: Globe, title: '.SE-domän & hosting', desc: 'Vi ordnar din .SE-domän och lägger din hemsida på snabba och säkra servrar med 99.9% upptid. WHM/cPanel för professionell drift.' },
+    59→  { icon: Mail, title: 'Professionell e-post', desc: 'info@dittforetag.se, kontakt@dittforetag.se — e-post med SPF, DKIM och fullt spamskydd. Levereras varje gång.' },
+    60→  { icon: Shield, title: 'SSL & säkerhet', desc: "Let's Encrypt SSL-certifikat, Imunify360 antivirusskydd, ModSecurity WAF och dagliga backuper. Din hemsida är säker hos oss." },
+    61→  { icon: Smartphone, title: 'Mobilanpassad', desc: '75% av dina besökare använder mobilen. Vi ser till att din hemsida ser fantastisk ut på alla skärmstorlekar — telefon, surfplatta och dator.' },
+    62→  { icon: BarChart3, title: 'SEO & statistik', desc: 'AWStats-trafikstatistik, Google-optimering och snabba laddningstider. Så att nya kunder hittar ditt företag på nätet.' },
+    63→];
+    64→
+    65→const testimonials = [
+    66→  { name: 'Marco Rossi', role: 'Ägare, Trattoria Bella', text: 'Våra gäster hittar oss enkelt och bordsbokningarna har ökat med 40% sedan vi bytte till Ownli. Fantastisk service!', stars: 5 },
+    67→  { name: 'Emma Lindqvist', role: 'Grundare, Nordbygg AB', text: 'Som entreprenör har jag ingen tid med teknik. Ownli sköter allt och deras support är fantastisk. Jag bara ringer och de fixar det.', stars: 5 },
+    68→  { name: 'Sara Ahmed', role: 'Klinikchef, Hälsokällan', text: 'Vårt bokningssystem online har revolutionerat vår verksamhet. Patienterna bokar enkelt dygnet runt — inga missade samtal längre.', stars: 5 },
+    69→];
+    70→
+    71→const faqs = [
+    72→  { q: 'Vad är skillnaden mellan direktköp och avbetalning?', a: 'Vid direktköp betalar du 35 000 kr och äger hemsidan från dag ett — du väljer själv hosting och drift. Vid avbetalning betalar du 2 000 kr per månad i 24 månader — under perioden ingår hosting, support och en större omfaktorering. Efter 24 månaderna övergår full äganderätt till dig.' },
+    73→  { q: 'Vad händer efter avbetalningen är klar?', a: 'När de 24 månaderna är slut äger du hemsidan fullt ut. Du väljer då fritt om du vill ha kvar oss som driftpartner, ta över hosting på egen hand, eller flytta till en annan leverantör. Det är ditt val.' },
+    74→  { q: 'Ingår hosting i priset?', a: 'Direktköp (35 000 kr) är själva hemsidan — du väljer därefter hosting själv eller via oss. Vid avbetalning under 24 månader ingår drift, support och uppdateringar under hela perioden.' },
+    75→  { q: 'Vad händer med min domän om jag vill flytta?', a: 'Du äger alltid din domän. Vill du flytta till en annan leverantör hjälper vi dig kostnadsfritt att överföra den, oavsett om du köpt direkt eller via avbetalning.' },
+    76→  { q: 'Kan ni uppdatera hemsidan senare?', a: 'Ja. Mindre justeringar och större omfaktoreringar tar vi per uppdrag. Du får alltid en fast prisuppskattning i förväg så att du vet vad som gäller.' },
+    77→  { q: 'Kan jag flytta min befintliga hemsida till er?', a: 'Absolut! Vi migrerar din befintliga WordPress-hemsida utan driftavbrott. Kontakta oss så löser vi övergången smidigt.' },
+    78→  { q: 'Vilka branscher servar ni?', a: 'Alla! Från restauranger och hantverkare till juridik och e-handel. Vi anpassar varje hemsida efter er bransch och era behov.' },
+    79→];
+    80→
+    81→const statusColors: Record<string, string> = { active: 'bg-emerald-100 text-emerald-700', paused: 'bg-amber-100 text-amber-700', cancelled: 'bg-red-100 text-red-700', planning: 'bg-blue-100 text-blue-700', in_progress: 'bg-amber-100 text-amber-700', review: 'bg-purple-100 text-purple-700', completed: 'bg-emerald-100 text-emerald-700', pending: 'bg-amber-100 text-amber-700', paid: 'bg-emerald-100 text-emerald-700', overdue: 'bg-red-100 text-red-700' };
+    82→const statusLabels: Record<string, string> = { active: 'Aktiv', paused: 'Pausad', cancelled: 'Avslutad', planning: 'Planering', in_progress: 'Pågående', review: 'Granskning', completed: 'Klar', pending: 'Väntar', paid: 'Betald', overdue: 'Försenad' };
+    83→
+    84→/* ─── Scroll reveal hook ─── */
+    85→function useReveal() {
+    86→  const ref = useRef<HTMLDivElement>(null);
+    87→  useEffect(() => {
+    88→    const el = ref.current;
+    89→    if (!el) return;
+    90→    const observer = new IntersectionObserver(
+    91→      ([entry]) => { if (entry.isIntersecting) { el.classList.add('visible'); observer.unobserve(el); } },
+    92→      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    93→    );
+    94→    observer.observe(el);
+    95→    return () => observer.disconnect();
+    96→  }, []);
+    97→  return ref;
+    98→}
+    99→
+   100→/* ═══════════════════════════════════════════
+   101→   LANDING PAGE
+   102→   ═══════════════════════════════════════════ */
+   103→function LandingPage({ onLogin }: { onLogin: () => void }) {
+   104→  const [mobileOpen, setMobileOpen] = useState(false);
+   105→  const [scrolled, setScrolled] = useState(false);
+   106→  const [faqOpen, setFaqOpen] = useState<number | null>(null);
+   107→  const [contactSent, setContactSent] = useState(false);
+   108→  const [isMobile, setIsMobile] = useState(false);
+   109→  // Slumpa hero-variant först på klienten (efter montering).
+   110→  const [heroIdx, setHeroIdx] = useState(0);
+   111→  useEffect(() => {
+   112→    setHeroIdx(Math.floor(Math.random() * heroVariants.length));
+   113→    setIsMobile(window.innerWidth < 768);
+   114→    const mq = window.matchMedia('(max-width: 767px)');
+   115→    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+   116→    mq.addEventListener('change', handler);
+   117→    return () => mq.removeEventListener('change', handler);
+   118→  }, []);
+   119→  const hero = heroVariants[heroIdx];
+   120→
+   121→  useEffect(() => {
+   122→    const h = () => setScrolled(window.scrollY > 20);
+   123→    window.addEventListener('scroll', h);
+   124→    return () => window.removeEventListener('scroll', h);
+   125→  }, []);
+   126→
+   127→  const navLinks = [
+   128→    { href: '#tjanster', label: 'Tjänster' }, { href: '#branscher', label: 'Branscher' },
+   129→    { href: '#priser', label: 'Priser' }, { href: '#process', label: 'Process' },
+   130→    { href: '#om-oss', label: 'Om oss' }, { href: '#kontakt', label: 'Kontakt' },
+   131→  ];
+   132→
+   133→  const handleContact = async (e: React.FormEvent<HTMLFormElement>) => {
+   134→    e.preventDefault();
+   135→    const fd = new FormData(e.currentTarget);
+   136→    try {
+   137→      await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: fd.get('name'), email: fd.get('email'), phone: fd.get('phone'), company: fd.get('company'), message: fd.get('message') }) });
+   138→      setContactSent(true);
+   139→      setTimeout(() => setContactSent(false), 4000);
+   140→      (e.target as HTMLFormElement).reset();
+   141→    } catch { /* silent */ }
+   142→  };
+   143→
+   144→  // Scroll reveal refs
+   145→  const servicesRef = useReveal();
+   146→  const industriesRef = useReveal();
+   147→  const pricingRef = useReveal();
+   148→  const processRef = useReveal();
+   149→  const testimonialsRef = useReveal();
+   150→  const aboutRef = useReveal();
+   151→  const faqRef = useReveal();
+   152→  const contactRef = useReveal();
+   153→
+   154→  return (
+   155→    <div className="min-h-screen flex flex-col">
+   156→      {/* NAVBAR */}
+   157→      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-stone-200' : 'bg-transparent'}`}>
+   158→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   159→          <div className="flex items-center justify-between h-16 sm:h-20">
+   160→            <a href="#" className="flex items-center gap-2.5 group">
+   161→              <OwnliLogo size={36} markOnly />
+   162→              <span className="text-xl font-bold text-stone-900 group-hover:text-blue-700 transition-colors font-[family-name:var(--font-display)]">Ownli</span>
+   163→            </a>
+   164→            <div className="hidden md:flex items-center gap-6">
+   165→              {navLinks.map(l => <a key={l.href} href={l.href} className="text-sm font-medium text-stone-600 hover:text-blue-700 transition-colors">{l.label}</a>)}
+   166→              <a href="#kontakt"><Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6 active:scale-[0.97] transition-transform">Kom igång</Button></a>
+   167→            </div>
+   168→            <button className="md:hidden p-2 text-stone-700" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Meny">
+   169→              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+   170→            </button>
+   171→          </div>
+   172→        </div>
+   173→        {mobileOpen && (
+   174→          <div className="md:hidden bg-white border-t border-stone-200 shadow-lg">
+   175→            <div className="px-4 py-4 space-y-3">
+   176→              {navLinks.map(l => <a key={l.href} href={l.href} className="block py-2 text-stone-700 font-medium hover:text-blue-700" onClick={() => setMobileOpen(false)}>{l.label}</a>)}
+   177→              <a href="#kontakt" onClick={() => setMobileOpen(false)}><Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full mt-2">Kom igång</Button></a>
+   178→            </div>
+   179→          </div>
+   180→        )}
+   181→      </nav>
+   182→
+   183→      <main id="main-content" className="flex-1">
+   184→        {/* HERO — Asymmetric: text left, shader bleeds right */}
+   185→        <section className="relative min-h-screen flex items-center overflow-hidden">
+   186→          {/* Shader as full background */}
+   187→          {!isMobile ? (
+   188→            <ShaderHero className="bg-stone-950" />
+   189→          ) : (
+   190→            <div className="absolute inset-0 bg-gradient-to-br from-stone-950 via-blue-950 to-stone-950" />
+   191→          )}
+   192→          <div className="absolute inset-0 bg-gradient-to-r from-stone-950/80 via-stone-950/50 to-transparent pointer-events-none" />
+   193→          <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-transparent to-transparent pointer-events-none" />
+   194→          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40 w-full">
+   195→            {/* LEFT-ALIGNED hero for character */}
+   196→            <div className="max-w-2xl">
+   197→              <div className="mb-6 inline-flex items-center gap-2 text-blue-300 text-xs font-semibold tracking-[0.25em] uppercase font-[family-name:var(--font-display)]"><span className="h-px w-8 bg-blue-400/60" />Du äger. Vi bygger.<span className="h-px w-8 bg-blue-400/60" /></div>
+   198→              <h1 className="text-5xl sm:text-6xl lg:text-8xl font-extrabold text-white leading-[0.95] mb-6 font-[family-name:var(--font-display)]">{hero.title[0]}<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">{hero.title[1]}</span>{hero.title[2]}</h1>
+   199→              <p className="text-lg sm:text-xl text-stone-300 mb-10 max-w-xl leading-relaxed">{hero.subtitle}</p>
+   200→              <div className="flex flex-col sm:flex-row gap-4">
+   201→                <a href="#priser"><Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 text-lg h-14 w-full sm:w-auto shadow-lg shadow-blue-600/25 active:scale-[0.97] transition-transform">Se våra priser <ArrowRight className="w-5 h-5 ml-2" /></Button></a>
+   202→                <a href="#process"><Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 text-lg h-14 w-full sm:w-auto active:scale-[0.97] transition-transform">Så fungerar det</Button></a>
+   203→              </div>
+   204→              <div className="mt-12 flex flex-wrap gap-2 sm:gap-3">
+   205→                {['.SE-domän ingår', 'SSL/HTTPS inkluderat', 'Svensk support', '99.9% upptid'].map(l => (
+   206→                  <span key={l} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-stone-200 text-xs sm:text-sm">
+   207→                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />{l}
+   208→                  </span>
+   209→                ))}
+   210→              </div>
+   211→            </div>
+   212→          </div>
+   213→          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"><div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center pt-2"><div className="w-1.5 h-3 rounded-full bg-white/50" /></div></div>
+   214→        </section>
+   215→
+   216→        {/* SERVICES — 2+1 asymmetric grid */}
+   217→        <section id="tjanster" className="py-24 sm:py-32 bg-white">
+   218→          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   219→            <div className="max-w-xl mb-16 reveal" ref={servicesRef}>
+   220→              <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Allt ditt företag behöver på nätet</h2>
+   221→              <p className="text-lg text-stone-500 leading-relaxed">Från domän och hosting till design och e-post — vi hanterar allt tekniskt så att du kan fokusera på din verksamhet.</p>
+   222→            </div>
+   223→            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+   224→              {services.map((s, i) => { const Icon = s.icon; return (
+   225→                <Card key={s.title} className={`group relative border-stone-200 hover:border-stone-400 hover:shadow-lg transition-all duration-300 overflow-hidden ${i === 0 ? 'sm:col-span-2 lg:col-span-1' : ''}`}>
+   226→                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-stone-900 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+   227→                  <CardHeader>
+   228→                    <div className="w-12 h-12 rounded-xl bg-stone-100 flex items-center justify-center mb-3 group-hover:bg-stone-900 transition-all duration-300">
+   229→                      <Icon className="w-6 h-6 text-stone-700 group-hover:text-white transition-colors" />
+   230→                    </div>
+   231→                    <CardTitle className="text-xl text-stone-900 font-[family-name:var(--font-display)] flex items-center justify-between gap-2">
+   232→                      {s.title}
+   233→                      <ArrowRight className="w-4 h-4 text-stone-300 group-hover:text-stone-900 group-hover:translate-x-1 transition-all" />
+   234→                    </CardTitle>
+   235→                  </CardHeader>
+   236→                  <CardContent><p className="text-stone-500 leading-relaxed text-sm">{s.desc}</p></CardContent>
+   237→                </Card>); })}
+   238→            </div>
+   239→          </div>
+   240→        </section>
+   241→
+   242→        {/* INDUSTRIES — Horizontal scroll on mobile */}
+   243→        <section id="branscher" className="py-24 sm:py-32 bg-stone-50">
+   244→          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   245→            <div className="text-center max-w-2xl mx-auto mb-16 reveal" ref={industriesRef}>
+   246→              <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Vi servar alla branscher</h2>
+   247→              <p className="text-lg text-stone-500">Oavsett bransch hjälper vi ditt företag att synas online</p>
+   248→            </div>
+   249→            {/* Mobile: horizontal scroll. Desktop: grid */}
+   250→            <div className="flex lg:grid lg:grid-cols-4 gap-5 overflow-x-auto pb-4 lg:pb-0 snap-x snap-mandatory -mx-4 px-4 lg:mx-0 lg:px-0 scrollbar-hide">
+   251→              {industries.map(ind => { const Icon = ind.icon; return (
+   252→                <Card key={ind.name} className="group border-stone-200 hover:border-stone-400 hover:shadow-lg transition-all duration-300 text-center bg-white min-w-[200px] lg:min-w-0 snap-start shrink-0 lg:shrink">
+   253→                  <CardHeader className="items-center pb-2 pt-6">
+   254→                    <div className="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center mb-3 group-hover:bg-stone-900 group-hover:scale-110 transition-all duration-300">
+   255→                      <Icon className="w-7 h-7 text-stone-600 group-hover:text-white transition-colors" />
+   256→                    </div>
+   257→                    <CardTitle className="text-base font-semibold text-stone-900 font-[family-name:var(--font-display)]">{ind.name}</CardTitle>
+   258→                  </CardHeader>
+   259→                  <CardContent className="pb-6"><p className="text-stone-500 text-xs leading-relaxed">{ind.desc}</p></CardContent>
+   260→                </Card>); })}
+   261→            </div>
+   262→          </div>
+   263→        </section>
+   264→
+   265→        {/* PRICING — Clean with breathing room */}
+   266→        <section id="priser" className="py-24 sm:py-32 bg-white">
+   267→          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   268→            <div className="text-center max-w-2xl mx-auto mb-16 reveal" ref={pricingRef}>
+   269→              <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Transparenta priser</h2>
+   270→              <p className="text-lg text-stone-500">Du äger, vi bygger. Alla priser exkl. moms.</p>
+   271→            </div>
+   272→
+   273→            <div className="mb-20">
+   274→              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+   275→                {purchaseOptions.map(opt => (
+   276→                  <Card key={opt.name} className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${opt.highlighted ? 'border-2 border-blue-600 shadow-xl shadow-blue-500/10 scale-[1.02] bg-gradient-to-b from-blue-50/50 to-white' : 'border-stone-200 hover:shadow-lg hover:border-stone-300'}`}>
+   277→                    {opt.highlighted && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><Badge className="bg-blue-600 text-white px-4 py-1 text-sm shadow-md shadow-blue-600/30">Mest populär</Badge></div>}
+   278→                    <CardHeader className="pb-2 pt-6">
+   279→                      <CardTitle className="text-2xl text-stone-900 font-[family-name:var(--font-display)]">{opt.name}</CardTitle>
+   280→                      <p className="text-stone-500 text-sm leading-relaxed pt-1">{opt.desc}</p>
+   281→                    </CardHeader>
+   282→                    <CardContent className="flex-1 pt-4">
+   283→                      <div className="mb-6 pb-6 border-b border-stone-100">
+   284→                        <div className="flex items-baseline gap-2">
+   285→                          <span className="text-5xl font-bold text-stone-900 tracking-tight font-[family-name:var(--font-display)]">{opt.price}</span>
+   286→                          <span className="text-stone-500 text-lg">{opt.unit}</span>
+   287→                        </div>
+   288→                      </div>
+   289→                      <ul className="space-y-3.5">{opt.features.map((f, i) => <li key={i} className="flex items-start gap-3"><div className="mt-0.5 w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center shrink-0"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /></div><span className="text-sm text-stone-700 leading-relaxed">{f}</span></li>)}</ul>
+   290→                    </CardContent>
+   291→                    <CardFooter className="pt-4 pb-6"><a href="#kontakt" className="w-full"><Button className={`w-full rounded-full h-12 text-base font-medium transition-all active:scale-[0.97] ${opt.highlighted ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25' : 'bg-stone-900 hover:bg-stone-800 text-white'}`}>Välj {opt.name} <ArrowRight className="w-4 h-4 ml-2" /></Button></a></CardFooter>
+   292→                  </Card>
+   293→                ))}
+   294→              </div>
+   295→            </div>
+   296→
+   297→            <div className="bg-stone-50 rounded-2xl p-8 sm:p-12 max-w-4xl mx-auto">
+   298→              <h3 className="text-2xl font-bold text-stone-900 mb-6 text-center font-[family-name:var(--font-display)]">Hur det fungerar</h3>
+   299→              <div className="space-y-4 text-stone-600 leading-relaxed">
+   300→                <p>Du köper din hemsida via ett av två alternativ. Vid <strong className="text-stone-900">direktköp</strong> betalar du 35 000 kr och äger hemsidan fullt ut från dag ett — fri att hosta hos oss, hos någon annan eller på egen hand.</p>
+   301→                <p>Vid <strong className="text-stone-900">avbetalning 2 år</strong> betalar du 2 000 kr per månad i 24 månader. Under perioden ingår drift, support och en större omfaktorering. När perioden är slut övergår full äganderätt till dig.</p>
+   302→                <p><strong className="text-stone-900">Du äger alltid din domän och din kod.</strong> Vi bygger, du bestämmer — precis som varumärket lovar.</p>
+   303→              </div>
+   304→            </div>
+   305→          </div>
+   306→        </section>
+   307→
+   308→        {/* PROCESS — Dark, compact */}
+   309→        <section id="process" className="py-24 sm:py-32 bg-stone-900 text-white">
+   310→          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   311→            <div className="text-center max-w-2xl mx-auto mb-16 reveal" ref={processRef}>
+   312→              <h2 className="text-3xl sm:text-5xl font-bold mb-4 font-[family-name:var(--font-display)]">Fyra enkla steg</h2>
+   313→              <p className="text-lg text-stone-400">Från samtal till lansering. Vi gör det enkelt.</p>
+   314→            </div>
+   315→            <div className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+   316→              <div className="hidden lg:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-stone-700 to-transparent" />
+   317→              {[{ n: '01', icon: MessageCircle, t: 'Vi pratar', d: 'Du berättar om ditt företag och vad du behöver. Vi lyssnar och ger råd.' }, { n: '02', icon: Palette, t: 'Vi designar', d: 'Vi skapar en unik design som speglar ditt företags identitet. Du justerar tills du är nöjd.' }, { n: '03', icon: Server, t: 'Vi bygger', d: 'Vi bygger din hemsida, ordnar .SE-domän, e-post, SSL och hosting. Allt driftklart.' }, { n: '04', icon: Shield, t: 'Du äger', d: 'Vid direktköp äger du allt från dag 1. Vid avbetalning äger du allt när perioden är slut.' }].map(s => { const Icon = s.icon; return (
+   318→                <div key={s.n} className="relative text-center group">
+   319→                  <div className="relative inline-flex w-16 h-16 rounded-2xl bg-stone-800 ring-1 ring-stone-700 items-center justify-center mb-5 group-hover:bg-blue-600 group-hover:ring-blue-500 transition-all duration-300">
+   320→                    <Icon className="w-7 h-7 text-stone-400 group-hover:text-white transition-colors" />
+   321→                    <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center ring-4 ring-stone-900 font-[family-name:var(--font-display)]">{s.n}</span>
+   322→                  </div>
+   323→                  <h3 className="text-xl font-bold mb-3 font-[family-name:var(--font-display)]">{s.t}</h3>
+   324→                  <p className="text-stone-400 leading-relaxed text-sm">{s.d}</p>
+   325→                </div>); })}
+   326→            </div>
+   327→          </div>
+   328→        </section>
+   329→
+   330→        {/* STATS — Compact, punchy */}
+   331→        <section className="relative py-14 bg-stone-950 overflow-hidden">
+   332→          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+   333→          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   334→            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center text-white">
+   335→              {[['99.9%', 'Upptid'], ['< 2s', 'Laddtid'], ['24/7', 'Övervakning'], ['30 dag', 'Backup-historik']].map(([v, l]) => (
+   336→                <div key={l} className="space-y-1"><div className="text-4xl sm:text-5xl font-bold tracking-tight font-[family-name:var(--font-display)]">{v}</div><div className="text-stone-500 text-sm font-medium">{l}</div></div>
+   337→              ))}
+   338→            </div>
+   339→          </div>
+   340→        </section>
+   341→
+   342→        {/* TESTIMONIALS — With larger quote marks and breathing room */}
+   343→        <section className="py-24 sm:py-32 bg-stone-50">
+   344→          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   345→            <div className="text-center max-w-2xl mx-auto mb-16 reveal" ref={testimonialsRef}>
+   346→              <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Vad våra kunder säger</h2>
+   347→            </div>
+   348→            <div className="grid md:grid-cols-3 gap-8">
+   349→              {testimonials.map(t => (
+   350→                <Card key={t.name} className="relative border-stone-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white overflow-hidden">
+   351→                  <div className="absolute top-2 right-4 text-8xl leading-none text-stone-100 font-serif select-none pointer-events-none">&ldquo;</div>
+   352→                  <CardHeader className="pb-2 relative">
+   353→                    <div className="flex gap-0.5 mb-3">{Array.from({ length: t.stars }).map((_, i) => <Star key={i} className="w-4 h-4 fill-stone-800 text-stone-800" />)}</div>
+   354→                  </CardHeader>
+   355→                  <CardContent className="relative">
+   356→                    <p className="text-stone-700 leading-relaxed mb-6 text-[0.95rem]">&ldquo;{t.text}&rdquo;</p>
+   357→                    <div className="flex items-center gap-3 pt-4 border-t border-stone-100">
+   358→                      <div className="w-10 h-10 rounded-full bg-stone-900 text-white font-semibold text-sm flex items-center justify-center shrink-0 font-[family-name:var(--font-display)]">
+   359→                        {t.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+   360→                      </div>
+   361→                      <div>
+   362→                        <p className="font-semibold text-stone-900 text-sm font-[family-name:var(--font-display)]">{t.name}</p>
+   363→                        <p className="text-xs text-stone-500">{t.role}</p>
+   364→                      </div>
+   365→                    </div>
+   366→                  </CardContent>
+   367→                </Card>
+   368→              ))}
+   369→            </div>
+   370→          </div>
+   371→        </section>
+   372→
+   373→        {/* ABOUT — Asymmetric: text left, visual right */}
+   374→        <section id="om-oss" className="py-24 sm:py-32 bg-white">
+   375→          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   376→            <div className="grid lg:grid-cols-5 gap-16 items-center reveal" ref={aboutRef}>
+   377→              <div className="lg:col-span-3">
+   378→                <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-8 font-[family-name:var(--font-display)]">Vi förstår svenska företag — och webben</h2>
+   379→                <div className="space-y-5 text-stone-500 leading-relaxed text-lg">
+   380→                  <p>Ownli grundades med en enkel idé: svenska företag förtjänar bättre hemsidor. För ofta ser vi fantastiska företag med dåliga, långsamma eller osäkra hemsidor som kostar för mycket.</p>
+   381→                  <p>Vi kombinerar djup teknisk expertis inom WordPress, hosting och webbsäkerhet med en genuin förståelse för olika branschers unika behov.</p>
+   382→                </div>
+   383→                <div className="mt-10 flex flex-wrap gap-8">
+   384→                  {[{ icon: Shield, t: 'Säker hosting', s: 'Imunify360 + WAF' }, { icon: Globe, t: '.SE-domäner', s: 'Certifierade registrarer' }, { icon: Headphones, t: 'Svensk support', s: 'Personlig & snabb' }].map(x => { const Icon = x.icon; return (
+   385→                    <div key={x.t} className="flex items-center gap-3"><div className="w-11 h-11 rounded-lg bg-stone-100 flex items-center justify-center"><Icon className="w-5 h-5 text-stone-700" /></div><div><p className="font-semibold text-stone-900 text-sm font-[family-name:var(--font-display)]">{x.t}</p><p className="text-xs text-stone-500">{x.s}</p></div></div>
+   386→                  ); })}
+   387→                </div>
+   388→              </div>
+   389→              <div className="lg:col-span-2 relative">
+   390→                <div className="aspect-[3/4] rounded-2xl bg-stone-100 flex items-center justify-center relative overflow-hidden border border-stone-200">
+   391→                  <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #1c1917 1px, transparent 0)', backgroundSize: '24px 24px' }} />
+   392→                  <div className="text-center p-8 relative">
+   393→                    <div className="w-16 h-16 rounded-2xl bg-white shadow-lg flex items-center justify-center mx-auto mb-4">
+   394→                      <Server className="w-8 h-8 text-stone-700" />
+   395→                    </div>
+   396→                    <p className="text-stone-800 font-semibold text-lg font-[family-name:var(--font-display)]">Professionell infrastruktur</p>
+   397→                    <p className="text-stone-500 text-sm mt-1">WHM/cPanel · LiteSpeed · CloudLinux</p>
+   398→                  </div>
+   399→                </div>
+   400→                <div className="absolute -bottom-6 -right-6 w-28 h-28 bg-stone-900 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-stone-900/20">
+   401→                  <div className="text-center">
+   402→                    <div className="text-3xl font-bold font-[family-name:var(--font-display)]">5+</div>
+   403→                    <div className="text-xs text-stone-400">Års erfarenhet</div>
+   404→                  </div>
+   405→                </div>
+   406→              </div>
+   407→            </div>
+   408→          </div>
+   409→        </section>
+   410→
+   411→        {/* FAQ — With smooth animation */}
+   412→        <section className="py-24 sm:py-32 bg-stone-50">
+   413→          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+   414→            <div className="text-center mb-16 reveal" ref={faqRef}>
+   415→              <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 font-[family-name:var(--font-display)]">Frågor och svar</h2>
+   416→            </div>
+   417→            <div className="space-y-3">
+   418→              {faqs.map((faq, i) => (
+   419→                <div key={i} className={`bg-white rounded-xl border overflow-hidden transition-all duration-200 ${faqOpen === i ? 'border-stone-400 shadow-md' : 'border-stone-200 hover:border-stone-300'}`}>
+   420→                  <button className="w-full px-6 py-5 text-left flex items-center justify-between gap-4 hover:bg-stone-50/50 transition-colors" onClick={() => setFaqOpen(faqOpen === i ? null : i)} aria-expanded={faqOpen === i}>
+   421→                    <span className="font-medium text-stone-900 font-[family-name:var(--font-display)]">{faq.q}</span>
+   422→                    <div className={`shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${faqOpen === i ? 'bg-stone-900 rotate-90' : 'bg-stone-100'}`}>
+   423→                      <ChevronRight className={`w-4 h-4 transition-colors duration-200 ${faqOpen === i ? 'text-white' : 'text-stone-500'}`} />
+   424→                    </div>
+   425→                  </button>
+   426→                  <div className={`faq-expand ${faqOpen === i ? 'open' : ''}`}>
+   427→                    <div>
+   428→                      <div className="px-6 pb-5 text-stone-600 leading-relaxed text-[0.95rem]">{faq.a}</div>
+   429→                    </div>
+   430→                  </div>
+   431→                </div>
+   432→              ))}
+   433→            </div>
+   434→          </div>
+   435→        </section>
+   436→
+   437→        {/* CONTACT — Asymmetric: info left, form right */}
+   438→        <section id="kontakt" className="py-24 sm:py-32 bg-white">
+   439→          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   440→            <div className="grid lg:grid-cols-5 gap-16 reveal" ref={contactRef}>
+   441→              <div className="lg:col-span-2">
+   442→                <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-6 font-[family-name:var(--font-display)]">Redo att synas online?</h2>
+   443→                <p className="text-lg text-stone-500 mb-10 leading-relaxed">Berätta om ditt företag och vilka behov du har. Vi återkommer med ett förslag inom 24 timmar — helt kostnadsfritt.</p>
+   444→                <div className="space-y-6">
+   445→                  {[{ icon: Mail, t: 'E-post', d: 'hej@ownli.se' }, { icon: Clock, t: 'Svarstid', d: 'Inom 24 timmar vardagar' }, { icon: Search, t: 'Gratis konsultation', d: 'Vi analyserar din nuvarande närvaro' }].map(x => { const Icon = x.icon; return (
+   446→                    <div key={x.t} className="flex items-start gap-4"><div className="w-12 h-12 rounded-xl bg-stone-100 flex items-center justify-center shrink-0"><Icon className="w-6 h-6 text-stone-700" /></div><div><p className="font-semibold text-stone-900 font-[family-name:var(--font-display)]">{x.t}</p><p className="text-stone-500">{x.d}</p></div></div>
+   447→                  ); })}
+   448→                </div>
+   449→              </div>
+   450→              <div className="lg:col-span-3">
+   451→                <Card className="border-stone-200 shadow-lg shadow-stone-200/40">
+   452→                  <CardHeader className="pb-2"><CardTitle className="text-xl text-stone-900 font-[family-name:var(--font-display)]">Skicka förfrågan</CardTitle><p className="text-sm text-stone-500">Vi återkommer inom 24 timmar — kostnadsfritt.</p></CardHeader>
+   453→                  <CardContent className="pt-4">
+   454→                    <form onSubmit={handleContact} className="space-y-4">
+   455→                      <div>
+   456→                        <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Företagets namn</label>
+   457→                        <Input name="company" placeholder="T.ex. Acme AB" className="h-11 border-stone-300 focus:border-stone-900 focus:ring-2 focus:ring-stone-200 transition-all" required />
+   458→                      </div>
+   459→                      <div className="grid sm:grid-cols-2 gap-4">
+   460→                        <div>
+   461→                          <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Ditt namn</label>
+   462→                          <Input name="name" placeholder="För- och efternamn" className="h-11 border-stone-300 focus:border-stone-900 focus:ring-2 focus:ring-stone-200 transition-all" required />
+   463→                        </div>
+   464→                        <div>
+   465→                          <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">E-post</label>
+   466→                          <Input name="email" type="email" placeholder="namn@foretag.se" className="h-11 border-stone-300 focus:border-stone-900 focus:ring-2 focus:ring-stone-200 transition-all" required />
+   467→                        </div>
+   468→                      </div>
+   469→                      <div>
+   470→                        <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Telefon</label>
+   471→                        <Input name="phone" type="tel" placeholder="070-123 45 67" className="h-11 border-stone-300 focus:border-stone-900 focus:ring-2 focus:ring-stone-200 transition-all" />
+   472→                      </div>
+   473→                      <div>
+   474→                        <label className="block text-xs font-semibold text-stone-700 mb-1.5 uppercase tracking-wide">Berätta om ditt företag</label>
+   475→                        <Textarea name="message" placeholder="Vilken bransch är ni i? Vad behöver ni för funktioner? Har ni redan en domän?" className="border-stone-300 focus:border-stone-900 focus:ring-2 focus:ring-stone-200 transition-all min-h-[120px]" />
+   476→                      </div>
+   477→                      <Button type="submit" className="w-full bg-stone-900 hover:bg-stone-800 text-white rounded-full h-12 text-base shadow-lg active:scale-[0.97] transition-transform">{contactSent ? <span className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5" />{'Tack! Vi hör av oss snart.'}</span> : <>{'Skicka förfrågan'} <ArrowRight className="w-4 h-4 ml-2" /></>}</Button>
+   478→                    </form>
+   479→                  </CardContent>
+   480→                </Card>
+   481→              </div>
+   482→            </div>
+   483→          </div>
+   484→        </section>
+   485→      </main>
+   486→
+   487→      {/* FOOTER — Fixed contrast: stone-300 instead of stone-400/500 */}
+   488→      <footer className="bg-stone-900 text-stone-300 pt-16 pb-8">
+   489→        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+   490→          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+   491→            <div className="sm:col-span-2 lg:col-span-1">
+   492→              <div className="flex items-center gap-2.5 mb-4"><OwnliLogo size={36} markOnly /><span className="text-xl font-bold text-white font-[family-name:var(--font-display)]">Ownli</span></div>
+   493→              <p className="text-sm leading-relaxed mb-5 text-stone-400">Professionella hemsidor för svenska företag. Design, hosting, domän och e-post — allt i ett.</p>
+   494→              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-800 text-xs">
+   495→                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+   496→                <span className="text-stone-300">Alla system opererar normalt</span>
+   497→              </div>
+   498→            </div>
+   499→            <div>
+   500→              <h4 className="text-white font-semibold mb-4 text-sm font-[family-name:var(--font-display)]">Tjänster</h4>
+   501→              <ul className="space-y-2.5 text-sm">
+   502→                {['Webbdesign', 'WordPress', '.SE-domän', 'E-post', 'Hosting'].map(s => <li key={s} className="hover:text-white transition-colors cursor-pointer">{s}</li>)}
+   503→              </ul>
+   504→            </div>
+   505→            <div>
+   506→              <h4 className="text-white font-semibold mb-4 text-sm font-[family-name:var(--font-display)]">Support</h4>
+   507→              <ul className="space-y-2.5 text-sm">
+   508→                {['Kontakta oss', 'Vanliga frågor', 'cPanel-guide', 'Statussida'].map(s => <li key={s} className="hover:text-white transition-colors cursor-pointer">{s}</li>)}
+   509→              </ul>
+   510→            </div>
+   511→            <div>
+   512→              <h4 className="text-white font-semibold mb-4 text-sm font-[family-name:var(--font-display)]">Legal</h4>
+   513→              <ul className="space-y-2.5 text-sm">
+   514→                {['Villkor', 'Integritetspolicy', 'Cookies'].map(s => <li key={s} className="hover:text-white transition-colors cursor-pointer">{s}</li>)}
+   515→              </ul>
+   516→            </div>
+   517→          </div>
+   518→          <div className="border-t border-stone-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+   519→            <p className="text-stone-400">&copy; {new Date().getFullYear()} Ownli. Alla rättigheter förbehållna.</p>
+   520→            <p className="text-stone-500 text-xs">Du äger. Vi bygger. <span className="text-stone-700">·</span> Byggt i Sverige</p>
+   521→          </div>
+   522→        </div>
+   523→      </footer>
+   524→
+   525→      {/* MOBILE STICKY CTA */}
+   526→      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 p-3 lg:hidden safe-area-bottom">
+   527→        <a href="#kontakt"><Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full h-12 text-base shadow-lg active:scale-[0.97] transition-transform">Kom igång <ArrowRight className="w-4 h-4 ml-2" /></Button></a>
+   528→      </div>
+   529→    </div>
+   530→  );
+   531→}
+   532→
+   533→/* ═══════════════════════════════════════════
+   534→   LOGIN PAGE
+   535→   ═══════════════════════════════════════════ */
+   536→function LoginPage({ onLogin, onBack }: { onLogin: () => void; onBack: () => void }) {
+   537→  const [email, setEmail] = useState('');
+   538→  const [password, setPassword] = useState('');
+   539→  const [showPw, setShowPw] = useState(false);
+   540→  const [error, setError] = useState('');
+   541→  const [loading, setLoading] = useState(false);
+   542→
+   543→  const handleLogin = async (e: React.FormEvent) => {
+   544→    e.preventDefault();
+   545→    setLoading(true);
+   546→    setError('');
+   547→    try {
+   548→      const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+   549→      const data = await res.json();
+   550→      if (res.ok) { onLogin(); }
+   551→      else { setError(data.error || 'Inloggningsfel'); }
+   552→    } catch { setError('Kunde inte ansluta till servern'); }
+   553→    setLoading(false);
+   554→  };
+   555→
+   556→  return (
+   557→    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 px-4">
+   558→      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(59,130,246,0.4) 0%, transparent 60%)' }} />
+   559→      <Card className="w-full max-w-md relative z-10 shadow-2xl border-stone-200">
+   560→        <CardHeader className="text-center space-y-4 pb-2">
+   561→          <div className="flex items-center justify-center gap-2.5"><OwnliLogo size={40} markOnly /><span className="text-2xl font-bold text-stone-900 font-[family-name:var(--font-display)]">Ownli</span></div>
+   562→          <p className="text-stone-500">Logga in på din admin-panel</p>
+   563→        </CardHeader>
+   564→        <CardContent>
+   565→          <form onSubmit={handleLogin} className="space-y-4">
+   566→            {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 flex items-center gap-2"><AlertCircle className="w-4 h-4 shrink-0" />{error}</div>}
+   567→            <div><label className="block text-sm font-medium text-stone-700 mb-1.5">E-post</label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@ownli.se" className="h-11" required /></div>
+   568→            <div><label className="block text-sm font-medium text-stone-700 mb-1.5">Lösenord</label>
+   569→              <div className="relative"><Input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="h-11 pr-10" required /><button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600" onClick={() => setShowPw(!showPw)}>{showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button></div>
+   570→            </div>
+   571→            <Button type="submit" className="w-full bg-stone-900 hover:bg-stone-800 text-white h-11 rounded-lg active:scale-[0.97] transition-transform" disabled={loading}>{loading ? 'Loggar in...' : 'Logga in'}</Button>
+   572→          </form>
+   573→          <div className="mt-4 text-center text-xs text-stone-400">Standard: admin@ownli.se / admin123</div>
+   574→          <button onClick={onBack} className="mt-6 w-full text-center text-sm text-stone-500 hover:text-stone-900 transition-colors">&larr; Tillbaka till hemsidan</button>
+   575→        </CardContent>
+   576→      </Card>
+   577→    </div>
+   578→  );
+   579→}
+   580→
+   581→/* ═══════════════════════════════════════════
+   582→   DASHBOARD
+   583→   ═══════════════════════════════════════════ */
+   584→function Dashboard({ onLogout }: { onLogout: () => void }) {
+   585→  const [section, setSection] = useState<DashSection>('overview');
+   586→  const [stats, setStats] = useState<Stats | null>(null);
+   587→  const [customers, setCustomers] = useState<Customer[]>([]);
+   588→  const [projects, setProjects] = useState<Project[]>([]);
+   589→  const [invoices, setInvoices] = useState<Invoice[]>([]);
+   590→  const [messages, setMessages] = useState<ContactMsg[]>([]);
+   591→  const [sidebarOpen, setSidebarOpen] = useState(false);
+   592→
+   593→  const fetchData = useCallback(async () => {
+   594→    try {
+   595→      const [s, c, p, i, m] = await Promise.all([
+   596→        fetch('/api/stats').then(r => r.json()),
+   597→        fetch('/api/customers').then(r => r.json()),
+   598→        fetch('/api/projects').then(r => r.json()),
+   599→        fetch('/api/invoices').then(r => r.json()),
+   600→        fetch('/api/contact').then(r => r.json()),
+   601→      ]);
+   602→      setStats(s); setCustomers(c); setProjects(p); setInvoices(i); setMessages(m);
+   603→    } catch (e) { console.error('Fetch error', e); }
+   604→  }, []);
+   605→
+   606→  useEffect(() => { fetchData(); }, [fetchData]);
+   607→
+   608→  const navItems: { id: DashSection; label: string; icon: typeof Home }[] = [
+   609→    { id: 'overview', label: 'Översikt', icon: LayoutDashboard },
+   610→    { id: 'customers', label: 'Kunder', icon: Users },
+   611→    { id: 'projects', label: 'Projekt', icon: FolderOpen },
+   612→    { id: 'invoices', label: 'Fakturor', icon: Receipt },
+   613→    { id: 'messages', label: 'Meddelanden', icon: MessageSquare },
+   614→    { id: 'settings', label: 'Inställningar', icon: Settings },
+   615→  ];
+   616→
+   617→  return (
+   618→    <div className="min-h-screen bg-stone-100 flex">
+   619→      {/* Sidebar */}
+   620→      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-stone-900 text-white transform transition-transform duration-200 lg:translate-x-0 lg:static ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+   621→        <div className="flex items-center gap-2.5 px-6 h-16 border-b border-stone-800">
+   622→          <OwnliLogo size={32} markOnly />
+   623→          <span className="text-lg font-bold font-[family-name:var(--font-display)]">Ownli</span>
+   624→        </div>
+   625→        <nav className="p-4 space-y-1">
+   626→          {navItems.map(n => { const Icon = n.icon; return (
+   627→            <button key={n.id} onClick={() => { setSection(n.id); setSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${section === n.id ? 'bg-stone-800 text-white' : 'text-stone-400 hover:text-white hover:bg-stone-800'}`}>
+   628→              <Icon className="w-5 h-5" />{n.label}
+   629→              {n.id === 'messages' && stats && stats.unreadMessages > 0 && <Badge className="ml-auto bg-red-500 text-white text-xs px-1.5 py-0">{stats.unreadMessages}</Badge>}
+   630→            </button>
+   631→          ); })}
+   632→        </nav>
+   633→        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-stone-800">
+   634→          <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"><LogOut className="w-5 h-5" />Logga ut</button>
+   635→        </div>
+   636→      </aside>
+   637→
+   638→      {/* Overlay */}
+   639→      {sidebarOpen && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />}
+   640→
+   641→      {/* Main */}
+   642→      <div className="flex-1 flex flex-col min-w-0">
+   643→        <header className="bg-white border-b border-stone-200 h-16 flex items-center px-4 sm:px-6 gap-4 shrink-0">
+   644→          <button className="lg:hidden p-2 -ml-2 text-stone-700" onClick={() => setSidebarOpen(true)}><Menu className="w-5 h-5" /></button>
+   645→          <h1 className="text-lg font-semibold text-stone-900 capitalize font-[family-name:var(--font-display)]">{navItems.find(n => n.id === section)?.label || 'Översikt'}</h1>
+   646→        </header>
+   647→
+   648→        <main className="flex-1 p-4 sm:p-6 overflow-auto">
+   649→          {!stats ? <div className="text-center py-20 text-stone-500">Laddar...</div> : (
+   650→            <>
+   651→              {section === 'overview' && <OverviewSection stats={stats} customers={customers} messages={messages} />}
+   652→              {section === 'customers' && <CustomersSection customers={customers} onRefresh={fetchData} />}
+   653→              {section === 'projects' && <ProjectsSection projects={projects} customers={customers} onRefresh={fetchData} />}
+   654→              {section === 'invoices' && <InvoicesSection invoices={invoices} customers={customers} onRefresh={fetchData} />}
+   655→              {section === 'messages' && <MessagesSection messages={messages} onRefresh={fetchData} />}
+   656→              {section === 'settings' && <SettingsSection />}
+   657→            </>
+   658→          )}
+   659→        </main>
+   660→      </div>
+   661→    </div>
+   662→  );
+   663→}
+   664→
+   665→/* ─── Overview ─── */
+   666→function OverviewSection({ stats, customers, messages }: { stats: Stats; customers: Customer[]; messages: ContactMsg[] }) {
+   667→  const cards = [
+   668→    { label: 'Totalt kunder', value: stats.totalCustomers, icon: Users, color: 'bg-stone-100 text-stone-700' },
+   669→    { label: 'Aktiva projekt', value: stats.activeProjects, icon: FolderOpen, color: 'bg-stone-100 text-stone-700' },
+   670→    { label: 'Fakturerat i mån', value: `${stats.revenueThisMonth.toLocaleString('sv-SE')} kr`, icon: DollarSign, color: 'bg-emerald-100 text-emerald-700' },
+   671→    { label: 'Obetalda fakturor', value: stats.unpaidInvoices, icon: AlertCircle, color: 'bg-red-100 text-red-700' },
+   672→  ];
+   673→  return (
+   674→    <div className="space-y-6">
+   675→      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+   676→        {cards.map(c => { const Icon = c.icon; return (
+   677→          <Card key={c.label} className="border-stone-200"><CardContent className="p-5 flex items-center gap-4"><div className={`w-12 h-12 rounded-xl flex items-center justify-center ${c.color}`}><Icon className="w-6 h-6" /></div><div><p className="text-sm text-stone-500">{c.label}</p><p className="text-2xl font-bold text-stone-900 font-[family-name:var(--font-display)]">{c.value}</p></div></CardContent></Card>
+   678→        ); })}
+   679→      </div>
+   680→      <div className="grid lg:grid-cols-2 gap-6">
+   681→        <Card className="border-stone-200"><CardHeader><CardTitle className="text-lg font-[family-name:var(--font-display)]">Senaste kunder</CardTitle></CardHeader><CardContent>
+   682→          <div className="space-y-3">{stats.recentCustomers.map(c => (
+   683→            <div key={c.id} className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0">
+   684→              <div><p className="font-medium text-stone-900 text-sm">{c.companyName}</p><p className="text-xs text-stone-500">{c.industry} · {c.plan}</p></div>
+   685→              <Badge className={`${statusColors[c.status] || ''} text-xs`}>{statusLabels[c.status] || c.status}</Badge>
+   686→            </div>
+   687→          ))}</div>
+   688→        </CardContent></Card>
+   689→        <Card className="border-stone-200"><CardHeader><CardTitle className="text-lg font-[family-name:var(--font-display)]">Senaste meddelanden</CardTitle></CardHeader><CardContent>
+   690→          <div className="space-y-3">{stats.recentMessages.map(m => (
+   691→            <div key={m.id} className="flex items-start gap-3 py-2 border-b border-stone-100 last:border-0">
+   692→              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.read ? 'bg-stone-100' : 'bg-stone-900'}`}><MessageSquare className={`w-4 h-4 ${m.read ? 'text-stone-400' : 'text-white'}`} /></div>
+   693→              <div className="min-w-0"><p className={`text-sm ${m.read ? 'text-stone-600' : 'font-semibold text-stone-900'}`}>{m.name} — {m.company || m.email}</p><p className="text-xs text-stone-500 truncate">{m.message}</p></div>
+   694→            </div>
+   695→          ))}</div>
+   696→        </CardContent></Card>
+   697→      </div>
+   698→    </div>
+   699→  );
+   700→}
+   701→
+   702→/* ─── Customers ─── */
+   703→function CustomersSection({ customers, onRefresh }: { customers: Customer[]; onRefresh: () => void }) {
+   704→  const [search, setSearch] = useState('');
+   705→  const [showAdd, setShowAdd] = useState(false);
+   706→  const [editId, setEditId] = useState<string | null>(null);
+   707→  const [form, setForm] = useState({ companyName: '', contactName: '', email: '', phone: '', industry: '', plan: 'Bas', status: 'active', notes: '' });
+   708→
+   709→  const filtered = customers.filter(c => c.companyName.toLowerCase().includes(search.toLowerCase()) || c.contactName.toLowerCase().includes(search.toLowerCase()));
+   710→
+   711→  const openAdd = () => { setForm({ companyName: '', contactName: '', email: '', phone: '', industry: '', plan: 'Bas', status: 'active', notes: '' }); setShowAdd(true); };
+   712→  const openEdit = (c: Customer) => { setForm({ companyName: c.companyName, contactName: c.contactName, email: c.email, phone: c.phone || '', industry: c.industry || '', plan: c.plan, status: c.status, notes: c.notes || '' }); setEditId(c.id); };
+   713→
+   714→  const saveCustomer = async () => {
+   715→    if (editId) { await fetch(`/api/customers/${editId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) }); }
+   716→    else { await fetch('/api/customers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) }); }
+   717→    setShowAdd(false); setEditId(null); onRefresh();
+   718→  };
+   719→
+   720→  const deleteCustomer = async (id: string) => { if (confirm('Ta bort denna kund?')) { await fetch(`/api/customers/${id}`, { method: 'DELETE' }); onRefresh(); } };
+   721→
+   722→  return (
+   723→    <div className="space-y-4">
+   724→      <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+   725→        <div className="relative flex-1 max-w-sm"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" /><Input placeholder="Sök kund..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-10" /></div>
+   726→        <Button onClick={openAdd} className="bg-stone-900 hover:bg-stone-800 text-white active:scale-[0.97] transition-transform"><Plus className="w-4 h-4 mr-2" />Ny kund</Button>
+   727→      </div>
+   728→
+   729→      <Card className="border-stone-200 overflow-hidden">
+   730→        <div className="overflow-x-auto">
+   731→          <table className="w-full text-sm">
+   732→            <thead><tr className="bg-stone-50 border-b border-stone-200"><th className="text-left px-4 py-3 font-medium text-stone-500">Företag</th><th className="text-left px-4 py-3 font-medium text-stone-500">Kontakt</th><th className="text-left px-4 py-3 font-medium text-stone-500 hidden md:table-cell">Bransch</th><th className="text-left px-4 py-3 font-medium text-stone-500">Paket</th><th className="text-left px-4 py-3 font-medium text-stone-500">Status</th><th className="text-right px-4 py-3 font-medium text-stone-500">Åtgärd</th></tr></thead>
+   733→            <tbody>{filtered.map(c => (
+   734→              <tr key={c.id} className="border-b border-stone-100 hover:bg-stone-50"><td className="px-4 py-3 font-medium text-stone-900">{c.companyName}</td><td className="px-4 py-3 text-stone-600">{c.contactName}</td><td className="px-4 py-3 text-stone-600 hidden md:table-cell">{c.industry}</td><td className="px-4 py-3"><Badge variant="secondary" className="text-xs">{c.plan}</Badge></td><td className="px-4 py-3"><Badge className={`${statusColors[c.status] || ''} text-xs`}>{statusLabels[c.status] || c.status}</Badge></td><td className="px-4 py-3 text-right"><button onClick={() => openEdit(c)} className="p-1 text-stone-400 hover:text-stone-700"><Edit className="w-4 h-4" /></button><button onClick={() => deleteCustomer(c.id)} className="p-1 text-stone-400 hover:text-red-600 ml-1"><Trash2 className="w-4 h-4" /></button></td></tr>
+   735→            ))}</tbody>
+   736→          </table>
+   737→        </div>
+   738→        {filtered.length === 0 && <div className="text-center py-10 text-stone-500">Inga kunder hittades</div>}
+   739→      </Card>
+   740→
+   741→      {(showAdd || editId) && (
+   742→        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => { setShowAdd(false); setEditId(null); }}>
+   743→          <Card className="w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
+   744→            <CardHeader><CardTitle className="font-[family-name:var(--font-display)]">{editId ? 'Redigera kund' : 'Ny kund'}</CardTitle></CardHeader>
+   745→            <CardContent className="space-y-4">
+   746→              <div><label className="block text-sm font-medium mb-1">Företag</label><Input value={form.companyName} onChange={e => setForm({ ...form, companyName: e.target.value })} /></div>
+   747→              <div className="grid grid-cols-2 gap-4"><div><label className="block text-sm font-medium mb-1">Kontaktperson</label><Input value={form.contactName} onChange={e => setForm({ ...form, contactName: e.target.value })} /></div><div><label className="block text-sm font-medium mb-1">E-post</label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div></div>
+   748→              <div className="grid grid-cols-2 gap-4"><div><label className="block text-sm font-medium mb-1">Telefon</label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></div><div><label className="block text-sm font-medium mb-1">Bransch</label><Input value={form.industry} onChange={e => setForm({ ...form, industry: e.target.value })} /></div></div>
+   749→              <div className="grid grid-cols-2 gap-4">
+   750→                <div><label className="block text-sm font-medium mb-1">Paket</label><select value={form.plan} onChange={e => setForm({ ...form, plan: e.target.value })} className="w-full h-9 rounded-md border border-stone-300 px-3 text-sm"><option>Bas</option><option>Pro</option><option>Premium</option></select></div>
+   751→                <div><label className="block text-sm font-medium mb-1">Status</label><select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} className="w-full h-9 rounded-md border border-stone-300 px-3 text-sm"><option value="active">Aktiv</option><option value="paused">Pausad</option><option value="cancelled">Avslutad</option></select></div>
+   752→              </div>
+   753→              <div><label className="block text-sm font-medium mb-1">Anteckningar</label><Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={3} /></div>
+   754→              <div className="flex gap-3 pt-2"><Button onClick={saveCustomer} className="bg-stone-900 hover:bg-stone-800 text-white flex-1 active:scale-[0.97] transition-transform">{editId ? 'Spara ändringar' : 'Skapa kund'}</Button><Button variant="outline" onClick={() => { setShowAdd(false); setEditId(null); }}>Avbryt</Button></div>
+   755→            </CardContent>
+   756→          </Card>
+   757→        </div>
+   758→      )}
+   759→    </div>
+   760→  );
+   761→}
+   762→
+   763→/* ─── Projects ─── */
+   764→function ProjectsSection({ projects, customers, onRefresh }: { projects: Project[]; customers: Customer[]; onRefresh: () => void }) {
+   765→  const [showAdd, setShowAdd] = useState(false);
+   766→  const [form, setForm] = useState({ customerId: '', name: '', description: '', status: 'planning' });
+   767→
+   768→  const saveProject = async () => {
+   769→    await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, startDate: new Date().toISOString() }) });
+   770→    setShowAdd(false); setForm({ customerId: '', name: '', description: '', status: 'planning' }); onRefresh();
+   771→  };
+   772→
+   773→  return (
+   774→    <div className="space-y-4">
+   775→      <div className="flex justify-end"><Button onClick={() => setShowAdd(true)} className="bg-stone-900 hover:bg-stone-800 text-white active:scale-[0.97] transition-transform"><Plus className="w-4 h-4 mr-2" />Nytt projekt</Button></div>
+   776→      <Card className="border-stone-200 overflow-hidden"><div className="overflow-x-auto">
+   777→        <table className="w-full text-sm">
+   778→          <thead><tr className="bg-stone-50 border-b border-stone-200"><th className="text-left px-4 py-3 font-medium text-stone-500">Projekt</th><th className="text-left px-4 py-3 font-medium text-stone-500">Kund</th><th className="text-left px-4 py-3 font-medium text-stone-500">Status</th><th className="text-left px-4 py-3 font-medium text-stone-500 hidden md:table-cell">Start</th><th className="text-right px-4 py-3 font-medium text-stone-500">Åtgärd</th></tr></thead>
+   779→          <tbody>{projects.map(p => (
+   780→            <tr key={p.id} className="border-b border-stone-100 hover:bg-stone-50"><td className="px-4 py-3 font-medium text-stone-900">{p.name}</td><td className="px-4 py-3 text-stone-600">{p.customer?.companyName || '—'}</td><td className="px-4 py-3"><Badge className={`${statusColors[p.status] || ''} text-xs`}>{statusLabels[p.status] || p.status}</Badge></td><td className="px-4 py-3 text-stone-500 hidden md:table-cell">{new Date(p.startDate).toLocaleDateString('sv-SE')}</td><td className="px-4 py-3 text-right"><button onClick={async () => { await fetch(`/api/projects/${p.id}`, { method: 'DELETE' }); onRefresh(); }} className="p-1 text-stone-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button></td></tr>
+   781→          ))}</tbody>
+   782→        </table>
+   783→      </div></Card>
+   784→      {showAdd && (
+   785→        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setShowAdd(false)}>
+   786→          <Card className="w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
+   787→            <CardHeader><CardTitle className="font-[family-name:var(--font-display)]">Nytt projekt</CardTitle></CardHeader>
+   788→            <CardContent className="space-y-4">
+   789→              <div><label className="block text-sm font-medium mb-1">Kund</label><select value={form.customerId} onChange={e => setForm({ ...form, customerId: e.target.value })} className="w-full h-9 rounded-md border border-stone-300 px-3 text-sm"><option value="">Välj kund...</option>{customers.filter(c => c.status === 'active').map(c => <option key={c.id} value={c.id}>{c.companyName}</option>)}</select></div>
+   790→              <div><label className="block text-sm font-medium mb-1">Projektnamn</label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+   791→              <div><label className="block text-sm font-medium mb-1">Beskrivning</label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} /></div>
+   792→              <div><label className="block text-sm font-medium mb-1">Status</label><select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} className="w-full h-9 rounded-md border border-stone-300 px-3 text-sm"><option value="planning">Planering</option><option value="in_progress">Pågående</option><option value="review">Granskning</option><option value="completed">Klar</option></select></div>
+   793→              <div className="flex gap-3 pt-2"><Button onClick={saveProject} className="bg-stone-900 hover:bg-stone-800 text-white flex-1 active:scale-[0.97] transition-transform">Skapa projekt</Button><Button variant="outline" onClick={() => setShowAdd(false)}>Avbryt</Button></div>
+   794→            </CardContent>
+   795→          </Card>
+   796→        </div>
+   797→      )}
+   798→    </div>
+   799→  );
+   800→}
+   801→
+   802→/* ─── Invoices ─── */
+   803→function InvoicesSection({ invoices, customers, onRefresh }: { invoices: Invoice[]; customers: Customer[]; onRefresh: () => void }) {
+   804→  const [showAdd, setShowAdd] = useState(false);
+   805→  const [form, setForm] = useState({ customerId: '', amount: '', description: '', dueDate: '' });
+   806→
+   807→  const totalUnpaid = invoices.filter(i => i.status === 'pending' || i.status === 'overdue').reduce((s, i) => s + i.amount, 0);
+   808→
+   809→  const saveInvoice = async () => {
+   810→    await fetch('/api/invoices', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ customerId: form.customerId, amount: parseFloat(form.amount), description: form.description, dueDate: new Date(form.dueDate).toISOString(), status: 'pending' }) });
+   811→    setShowAdd(false); setForm({ customerId: '', amount: '', description: '', dueDate: '' }); onRefresh();
+   812→  };
+   813→
+   814→  const markPaid = async (id: string) => { await fetch(`/api/invoices/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'paid', paidDate: new Date().toISOString() }) }); onRefresh(); };
+   815→
+   816→  return (
+   817→    <div className="space-y-4">
+   818→      <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+   819→        <div className="text-stone-600">Obetalt: <span className="text-xl font-bold text-red-600 font-[family-name:var(--font-display)]">{totalUnpaid.toLocaleString('sv-SE')} kr</span></div>
+   820→        <Button onClick={() => setShowAdd(true)} className="bg-stone-900 hover:bg-stone-800 text-white active:scale-[0.97] transition-transform"><Plus className="w-4 h-4 mr-2" />Ny faktura</Button>
+   821→      </div>
+   822→      <Card className="border-stone-200 overflow-hidden"><div className="overflow-x-auto">
+   823→        <table className="w-full text-sm">
+   824→          <thead><tr className="bg-stone-50 border-b border-stone-200"><th className="text-left px-4 py-3 font-medium text-stone-500">Beskrivning</th><th className="text-left px-4 py-3 font-medium text-stone-500">Kund</th><th className="text-left px-4 py-3 font-medium text-stone-500">Belopp</th><th className="text-left px-4 py-3 font-medium text-stone-500">Förfallo</th><th className="text-left px-4 py-3 font-medium text-stone-500">Status</th><th className="text-right px-4 py-3 font-medium text-stone-500">Åtgärd</th></tr></thead>
+   825→          <tbody>{invoices.map(inv => (
+   826→            <tr key={inv.id} className="border-b border-stone-100 hover:bg-stone-50"><td className="px-4 py-3 font-medium text-stone-900">{inv.description}</td><td className="px-4 py-3 text-stone-600">{inv.customer?.companyName || '—'}</td><td className="px-4 py-3 text-stone-900 font-medium">{inv.amount.toLocaleString('sv-SE')} kr</td><td className="px-4 py-3 text-stone-500">{new Date(inv.dueDate).toLocaleDateString('sv-SE')}</td><td className="px-4 py-3"><Badge className={`${statusColors[inv.status] || ''} text-xs`}>{statusLabels[inv.status] || inv.status}</Badge></td><td className="px-4 py-3 text-right">{inv.status !== 'paid' && <button onClick={() => markPaid(inv.id)} className="text-xs text-emerald-600 hover:text-emerald-800 font-medium">Markera betald</button>}</td></tr>
+   827→          ))}</tbody>
+   828→        </table>
+   829→      </div></Card>
+   830→      {showAdd && (
+   831→        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setShowAdd(false)}>
+   832→          <Card className="w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
+   833→            <CardHeader><CardTitle className="font-[family-name:var(--font-display)]">Ny faktura</CardTitle></CardHeader>
+   834→            <CardContent className="space-y-4">
+   835→              <div><label className="block text-sm font-medium mb-1">Kund</label><select value={form.customerId} onChange={e => setForm({ ...form, customerId: e.target.value })} className="w-full h-9 rounded-md border border-stone-300 px-3 text-sm"><option value="">Välj kund...</option>{customers.map(c => <option key={c.id} value={c.id}>{c.companyName}</option>)}</select></div>
+   836→              <div><label className="block text-sm font-medium mb-1">Belopp (kr)</label><Input type="number" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} /></div>
+   837→              <div><label className="block text-sm font-medium mb-1">Beskrivning</label><Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></div>
+   838→              <div><label className="block text-sm font-medium mb-1">Förfallodatum</label><Input type="date" value={form.dueDate} onChange={e => setForm({ ...form, dueDate: e.target.value })} /></div>
+   839→              <div className="flex gap-3 pt-2"><Button onClick={saveInvoice} className="bg-stone-900 hover:bg-stone-800 text-white flex-1 active:scale-[0.97] transition-transform">Skapa faktura</Button><Button variant="outline" onClick={() => setShowAdd(false)}>Avbryt</Button></div>
+   840→            </CardContent>
+   841→          </Card>
+   842→        </div>
+   843→      )}
+   844→    </div>
+   845→  );
+   846→}
+   847→
+   848→/* ─── Messages ─── */
+   849→function MessagesSection({ messages, onRefresh }: { messages: ContactMsg[]; onRefresh: () => void }) {
+   850→  const toggleRead = async (m: ContactMsg) => { await fetch(`/api/contact/${m.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ read: !m.read }) }); onRefresh(); };
+   851→  const deleteMsg = async (id: string) => { await fetch(`/api/contact/${id}`, { method: 'DELETE' }); onRefresh(); };
+   852→
+   853→  return (
+   854→    <div className="space-y-3">
+   855→      {messages.length === 0 && <Card className="border-stone-200"><CardContent className="py-10 text-center text-stone-500">Inga meddelanden</CardContent></Card>}
+   856→      {messages.map(m => (
+   857→        <Card key={m.id} className={`border-stone-200 transition-all ${!m.read ? 'border-l-4 border-l-stone-900 bg-stone-50/50' : ''}`}>
+   858→          <CardContent className="p-5">
+   859→            <div className="flex items-start justify-between gap-4">
+   860→              <div className="min-w-0 flex-1">
+   861→                <div className="flex items-center gap-2 mb-1"><p className={`text-sm ${!m.read ? 'font-semibold text-stone-900' : 'text-stone-700'}`}>{m.name}</p>{m.company && <Badge variant="secondary" className="text-xs">{m.company}</Badge>}</div>
+   862→                <p className="text-xs text-stone-500 mb-2">{m.email}{m.phone ? ` · ${m.phone}` : ''} · {new Date(m.createdAt).toLocaleDateString('sv-SE')}</p>
+   863→                <p className="text-stone-600 text-sm leading-relaxed">{m.message}</p>
+   864→              </div>
+   865→              <div className="flex gap-1 shrink-0">
+   866→                <button onClick={() => toggleRead(m)} className="p-1.5 text-stone-400 hover:text-stone-700 rounded" title={m.read ? 'Markera oläst' : 'Markera läst'}>{m.read ? <Mail className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}</button>
+   867→                <button onClick={() => deleteMsg(m.id)} className="p-1.5 text-stone-400 hover:text-red-600 rounded" title="Ta bort"><Trash2 className="w-4 h-4" /></button>
+   868→              </div>
+   869→            </div>
+   870→          </CardContent>
+   871→        </Card>
+   872→      ))}
+   873→    </div>
+   874→  );
+   875→}
+   876→
+   877→/* ─── Settings ─── */
+   878→function SettingsSection() {
+   879→  const [currentPw, setCurrentPw] = useState('');
+   880→  const [newPw, setNewPw] = useState('');
+   881→  const [saved, setSaved] = useState(false);
+   882→
+   883→  const handleSave = async (e: React.FormEvent) => {
+   884→    e.preventDefault();
+   885→    setSaved(true);
+   886→    setTimeout(() => setSaved(false), 3000);
+   887→  };
+   888→
+   889→  return (
+   890→    <div className="max-w-md space-y-6">
+   891→      <Card className="border-stone-200"><CardHeader><CardTitle className="font-[family-name:var(--font-display)]">Ändra lösenord</CardTitle></CardHeader><CardContent>
+   892→        <form onSubmit={handleSave} className="space-y-4">
+   893→          <div><label className="block text-sm font-medium mb-1">Nuvarande lösenord</label><Input type="password" value={currentPw} onChange={e => setCurrentPw(e.target.value)} /></div>
+   894→          <div><label className="block text-sm font-medium mb-1">Nytt lösenord</label><Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} /></div>
+   895→          <Button type="submit" className="bg-stone-900 hover:bg-stone-800 text-white active:scale-[0.97] transition-transform">{saved ? 'Sparat!' : 'Spara lösenord'}</Button>
+   896→        </form>
+   897→      </CardContent></Card>
+   898→    </div>
+   899→  );
+   900→}
+   901→
+   902→/* ═══════════════════════════════════════════
+   903→   MAIN PAGE
+   904→   ═══════════════════════════════════════════ */
+   905→export default function Home() {
+   906→  const [view, setView] = useState<View>('landing');
+   907→  const [loggedIn, setLoggedIn] = useState(false);
+   908→
+   909→  useEffect(() => {
+   910→    // Check if session cookie exists
+   911→    const checkSession = async () => {
+   912→      try {
+   913→        const res = await fetch('/api/stats');
+   914→        if (res.ok) { setLoggedIn(true); } // If stats API works, we're authenticated
+   915→      } catch { /* not logged in */ }
+   916→    };
+   917→    // Don't auto-login, let user click login
+   918→  }, []);
+   919→
+   920→  const handleLogin = () => { setLoggedIn(true); setView('dashboard'); };
+   921→  const handleLogout = () => { setLoggedIn(false); setView('landing'); document.cookie = 'ownli_session=; max-age=0; path=/'; };
+   922→
+   923→  if (view === 'login') return <LoginPage onLogin={handleLogin} onBack={() => setView('landing')} />;
+   924→  if (view === 'dashboard' && loggedIn) return <Dashboard onLogout={handleLogout} />;
+   925→  return <LandingPage onLogin={() => setView('login')} />;
+   926→}
+   927→

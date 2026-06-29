@@ -1,0 +1,428 @@
+     1→   500→   500→              <h4 className="text-white font-semibold mb-4 text-sm font-[family-name:var(--font-display)]">Tjänster</h4>
+     2→   501→   501→              <ul className="space-y-2.5 text-sm">
+     3→   502→   502→                {['Webbdesign', 'WordPress', '.SE-domän', 'E-post', 'Hosting'].map(s => <li key={s} className="hover:text-white transition-colors cursor-pointer">{s}</li>)}
+     4→   503→   503→              </ul>
+     5→   504→   504→            </div>
+     6→   505→   505→            <div>
+     7→   506→   506→              <h4 className="text-white font-semibold mb-4 text-sm font-[family-name:var(--font-display)]">Support</h4>
+     8→   507→   507→              <ul className="space-y-2.5 text-sm">
+     9→   508→   508→                {['Kontakta oss', 'Vanliga frågor', 'cPanel-guide', 'Statussida'].map(s => <li key={s} className="hover:text-white transition-colors cursor-pointer">{s}</li>)}
+    10→   509→   509→              </ul>
+    11→   510→   510→            </div>
+    12→   511→   511→            <div>
+    13→   512→   512→              <h4 className="text-white font-semibold mb-4 text-sm font-[family-name:var(--font-display)]">Legal</h4>
+    14→   513→   513→              <ul className="space-y-2.5 text-sm">
+    15→   514→   514→                {['Villkor', 'Integritetspolicy', 'Cookies'].map(s => <li key={s} className="hover:text-white transition-colors cursor-pointer">{s}</li>)}
+    16→   515→   515→              </ul>
+    17→   516→   516→            </div>
+    18→   517→   517→          </div>
+    19→   518→   518→          <div className="border-t border-stone-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+    20→   519→   519→            <p className="text-stone-400">&copy; {new Date().getFullYear()} Ownli. Alla rättigheter förbehållna.</p>
+    21→   520→   520→            <p className="text-stone-500 text-xs">Du äger. Vi bygger. <span className="text-stone-700">·</span> Byggt i Sverige</p>
+    22→   521→   521→          </div>
+    23→   522→   522→        </div>
+    24→   523→   523→      </footer>
+    25→   524→   524→
+    26→   525→   525→      {/* MOBILE STICKY CTA */}
+    27→   526→   526→      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 p-3 lg:hidden safe-area-bottom">
+    28→   527→   527→        <a href="#kontakt"><Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full h-12 text-base shadow-lg active:scale-[0.97] transition-transform">Kom igång <ArrowRight className="w-4 h-4 ml-2" /></Button></a>
+    29→   528→   528→      </div>
+    30→   529→   529→    </div>
+    31→   530→   530→  );
+    32→   531→   531→}
+    33→   532→   532→
+    34→   533→   533→/* ═══════════════════════════════════════════
+    35→   534→   534→   LOGIN PAGE
+    36→   535→   535→   ═══════════════════════════════════════════ */
+    37→   536→   536→function LoginPage({ onLogin, onBack }: { onLogin: () => void; onBack: () => void }) {
+    38→   537→   537→  const [email, setEmail] = useState('');
+    39→   538→   538→  const [password, setPassword] = useState('');
+    40→   539→   539→  const [showPw, setShowPw] = useState(false);
+    41→   540→   540→  const [error, setError] = useState('');
+    42→   541→   541→  const [loading, setLoading] = useState(false);
+    43→   542→   542→
+    44→   543→   543→  const handleLogin = async (e: React.FormEvent) => {
+    45→   544→   544→    e.preventDefault();
+    46→   545→   545→    setLoading(true);
+    47→   546→   546→    setError('');
+    48→   547→   547→    try {
+    49→   548→   548→      const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+    50→   549→   549→      const data = await res.json();
+    51→   550→   550→      if (res.ok) { onLogin(); }
+    52→   551→   551→      else { setError(data.error || 'Inloggningsfel'); }
+    53→   552→   552→    } catch { setError('Kunde inte ansluta till servern'); }
+    54→   553→   553→    setLoading(false);
+    55→   554→   554→  };
+    56→   555→   555→
+    57→   556→   556→  return (
+    58→   557→   557→    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 px-4">
+    59→   558→   558→      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(59,130,246,0.4) 0%, transparent 60%)' }} />
+    60→   559→   559→      <Card className="w-full max-w-md relative z-10 shadow-2xl border-stone-200">
+    61→   560→   560→        <CardHeader className="text-center space-y-4 pb-2">
+    62→   561→   561→          <div className="flex items-center justify-center gap-2.5"><OwnliLogo size={40} markOnly /><span className="text-2xl font-bold text-stone-900 font-[family-name:var(--font-display)]">Ownli</span></div>
+    63→   562→   562→          <p className="text-stone-500">Logga in på din admin-panel</p>
+    64→   563→   563→        </CardHeader>
+    65→   564→   564→        <CardContent>
+    66→   565→   565→          <form onSubmit={handleLogin} className="space-y-4">
+    67→   566→   566→            {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 flex items-center gap-2"><AlertCircle className="w-4 h-4 shrink-0" />{error}</div>}
+    68→   567→   567→            <div><label className="block text-sm font-medium text-stone-700 mb-1.5">E-post</label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@ownli.se" className="h-11" required /></div>
+    69→   568→   568→            <div><label className="block text-sm font-medium text-stone-700 mb-1.5">Lösenord</label>
+    70→   569→   569→              <div className="relative"><Input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" className="h-11 pr-10" required /><button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600" onClick={() => setShowPw(!showPw)}>{showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}</button></div>
+    71→   570→   570→            </div>
+    72→   571→   571→            <Button type="submit" className="w-full bg-stone-900 hover:bg-stone-800 text-white h-11 rounded-lg active:scale-[0.97] transition-transform" disabled={loading}>{loading ? 'Loggar in...' : 'Logga in'}</Button>
+    73→   572→   572→          </form>
+    74→   573→   573→          <div className="mt-4 text-center text-xs text-stone-400">Standard: admin@ownli.se / admin123</div>
+    75→   574→   574→          <button onClick={onBack} className="mt-6 w-full text-center text-sm text-stone-500 hover:text-stone-900 transition-colors">&larr; Tillbaka till hemsidan</button>
+    76→   575→   575→        </CardContent>
+    77→   576→   576→      </Card>
+    78→   577→   577→    </div>
+    79→   578→   578→  );
+    80→   579→   579→}
+    81→   580→   580→
+    82→   581→   581→/* ═══════════════════════════════════════════
+    83→   582→   582→   DASHBOARD
+    84→   583→   583→   ═══════════════════════════════════════════ */
+    85→   584→   584→function Dashboard({ onLogout }: { onLogout: () => void }) {
+    86→   585→   585→  const [section, setSection] = useState<DashSection>('overview');
+    87→   586→   586→  const [stats, setStats] = useState<Stats | null>(null);
+    88→   587→   587→  const [customers, setCustomers] = useState<Customer[]>([]);
+    89→   588→   588→  const [projects, setProjects] = useState<Project[]>([]);
+    90→   589→   589→  const [invoices, setInvoices] = useState<Invoice[]>([]);
+    91→   590→   590→  const [messages, setMessages] = useState<ContactMsg[]>([]);
+    92→   591→   591→  const [sidebarOpen, setSidebarOpen] = useState(false);
+    93→   592→   592→
+    94→   593→   593→  const fetchData = useCallback(async () => {
+    95→   594→   594→    try {
+    96→   595→   595→      const [s, c, p, i, m] = await Promise.all([
+    97→   596→   596→        fetch('/api/stats').then(r => r.json()),
+    98→   597→   597→        fetch('/api/customers').then(r => r.json()),
+    99→   598→   598→        fetch('/api/projects').then(r => r.json()),
+   100→   599→   599→        fetch('/api/invoices').then(r => r.json()),
+   101→   600→   600→        fetch('/api/contact').then(r => r.json()),
+   102→   601→   601→      ]);
+   103→   602→   602→      setStats(s); setCustomers(c); setProjects(p); setInvoices(i); setMessages(m);
+   104→   603→   603→    } catch (e) { console.error('Fetch error', e); }
+   105→   604→   604→  }, []);
+   106→   605→   605→
+   107→   606→   606→  useEffect(() => { fetchData(); }, [fetchData]);
+   108→   607→   607→
+   109→   608→   608→  const navItems: { id: DashSection; label: string; icon: typeof Home }[] = [
+   110→   609→   609→    { id: 'overview', label: 'Översikt', icon: LayoutDashboard },
+   111→   610→   610→    { id: 'customers', label: 'Kunder', icon: Users },
+   112→   611→   611→    { id: 'projects', label: 'Projekt', icon: FolderOpen },
+   113→   612→   612→    { id: 'invoices', label: 'Fakturor', icon: Receipt },
+   114→   613→   613→    { id: 'messages', label: 'Meddelanden', icon: MessageSquare },
+   115→   614→   614→    { id: 'settings', label: 'Inställningar', icon: Settings },
+   116→   615→   615→  ];
+   117→   616→   616→
+   118→   617→   617→  return (
+   119→   618→   618→    <div className="min-h-screen bg-stone-100 flex">
+   120→   619→   619→      {/* Sidebar */}
+   121→   620→   620→      <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-stone-900 text-white transform transition-transform duration-200 lg:translate-x-0 lg:static ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+   122→   621→   621→        <div className="flex items-center gap-2.5 px-6 h-16 border-b border-stone-800">
+   123→   622→   622→          <OwnliLogo size={32} markOnly />
+   124→   623→   623→          <span className="text-lg font-bold font-[family-name:var(--font-display)]">Ownli</span>
+   125→   624→   624→        </div>
+   126→   625→   625→        <nav className="p-4 space-y-1">
+   127→   626→   626→          {navItems.map(n => { const Icon = n.icon; return (
+   128→   627→   627→            <button key={n.id} onClick={() => { setSection(n.id); setSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${section === n.id ? 'bg-stone-800 text-white' : 'text-stone-400 hover:text-white hover:bg-stone-800'}`}>
+   129→   628→   628→              <Icon className="w-5 h-5" />{n.label}
+   130→   629→   629→              {n.id === 'messages' && stats && stats.unreadMessages > 0 && <Badge className="ml-auto bg-red-500 text-white text-xs px-1.5 py-0">{stats.unreadMessages}</Badge>}
+   131→   630→   630→            </button>
+   132→   631→   631→          ); })}
+   133→   632→   632→        </nav>
+   134→   633→   633→        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-stone-800">
+   135→   634→   634→          <button onClick={onLogout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"><LogOut className="w-5 h-5" />Logga ut</button>
+   136→   635→   635→        </div>
+   137→   636→   636→      </aside>
+   138→   637→   637→
+   139→   638→   638→      {/* Overlay */}
+   140→   639→   639→      {sidebarOpen && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />}
+   141→   640→   640→
+   142→   641→   641→      {/* Main */}
+   143→   642→   642→      <div className="flex-1 flex flex-col min-w-0">
+   144→   643→   643→        <header className="bg-white border-b border-stone-200 h-16 flex items-center px-4 sm:px-6 gap-4 shrink-0">
+   145→   644→   644→          <button className="lg:hidden p-2 -ml-2 text-stone-700" onClick={() => setSidebarOpen(true)}><Menu className="w-5 h-5" /></button>
+   146→   645→   645→          <h1 className="text-lg font-semibold text-stone-900 capitalize font-[family-name:var(--font-display)]">{navItems.find(n => n.id === section)?.label || 'Översikt'}</h1>
+   147→   646→   646→        </header>
+   148→   647→   647→
+   149→   648→   648→        <main className="flex-1 p-4 sm:p-6 overflow-auto">
+   150→   649→   649→          {!stats ? <div className="text-center py-20 text-stone-500">Laddar...</div> : (
+   151→   650→   650→            <>
+   152→   651→   651→              {section === 'overview' && <OverviewSection stats={stats} customers={customers} messages={messages} />}
+   153→   652→   652→              {section === 'customers' && <CustomersSection customers={customers} onRefresh={fetchData} />}
+   154→   653→   653→              {section === 'projects' && <ProjectsSection projects={projects} customers={customers} onRefresh={fetchData} />}
+   155→   654→   654→              {section === 'invoices' && <InvoicesSection invoices={invoices} customers={customers} onRefresh={fetchData} />}
+   156→   655→   655→              {section === 'messages' && <MessagesSection messages={messages} onRefresh={fetchData} />}
+   157→   656→   656→              {section === 'settings' && <SettingsSection />}
+   158→   657→   657→            </>
+   159→   658→   658→          )}
+   160→   659→   659→        </main>
+   161→   660→   660→      </div>
+   162→   661→   661→    </div>
+   163→   662→   662→  );
+   164→   663→   663→}
+   165→   664→   664→
+   166→   665→   665→/* ─── Overview ─── */
+   167→   666→   666→function OverviewSection({ stats, customers, messages }: { stats: Stats; customers: Customer[]; messages: ContactMsg[] }) {
+   168→   667→   667→  const cards = [
+   169→   668→   668→    { label: 'Totalt kunder', value: stats.totalCustomers, icon: Users, color: 'bg-stone-100 text-stone-700' },
+   170→   669→   669→    { label: 'Aktiva projekt', value: stats.activeProjects, icon: FolderOpen, color: 'bg-stone-100 text-stone-700' },
+   171→   670→   670→    { label: 'Fakturerat i mån', value: `${stats.revenueThisMonth.toLocaleString('sv-SE')} kr`, icon: DollarSign, color: 'bg-emerald-100 text-emerald-700' },
+   172→   671→   671→    { label: 'Obetalda fakturor', value: stats.unpaidInvoices, icon: AlertCircle, color: 'bg-red-100 text-red-700' },
+   173→   672→   672→  ];
+   174→   673→   673→  return (
+   175→   674→   674→    <div className="space-y-6">
+   176→   675→   675→      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+   177→   676→   676→        {cards.map(c => { const Icon = c.icon; return (
+   178→   677→   677→          <Card key={c.label} className="border-stone-200"><CardContent className="p-5 flex items-center gap-4"><div className={`w-12 h-12 rounded-xl flex items-center justify-center ${c.color}`}><Icon className="w-6 h-6" /></div><div><p className="text-sm text-stone-500">{c.label}</p><p className="text-2xl font-bold text-stone-900 font-[family-name:var(--font-display)]">{c.value}</p></div></CardContent></Card>
+   179→   678→   678→        ); })}
+   180→   679→   679→      </div>
+   181→   680→   680→      <div className="grid lg:grid-cols-2 gap-6">
+   182→   681→   681→        <Card className="border-stone-200"><CardHeader><CardTitle className="text-lg font-[family-name:var(--font-display)]">Senaste kunder</CardTitle></CardHeader><CardContent>
+   183→   682→   682→          <div className="space-y-3">{stats.recentCustomers.map(c => (
+   184→   683→   683→            <div key={c.id} className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0">
+   185→   684→   684→              <div><p className="font-medium text-stone-900 text-sm">{c.companyName}</p><p className="text-xs text-stone-500">{c.industry} · {c.plan}</p></div>
+   186→   685→   685→              <Badge className={`${statusColors[c.status] || ''} text-xs`}>{statusLabels[c.status] || c.status}</Badge>
+   187→   686→   686→            </div>
+   188→   687→   687→          ))}</div>
+   189→   688→   688→        </CardContent></Card>
+   190→   689→   689→        <Card className="border-stone-200"><CardHeader><CardTitle className="text-lg font-[family-name:var(--font-display)]">Senaste meddelanden</CardTitle></CardHeader><CardContent>
+   191→   690→   690→          <div className="space-y-3">{stats.recentMessages.map(m => (
+   192→   691→   691→            <div key={m.id} className="flex items-start gap-3 py-2 border-b border-stone-100 last:border-0">
+   193→   692→   692→              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${m.read ? 'bg-stone-100' : 'bg-stone-900'}`}><MessageSquare className={`w-4 h-4 ${m.read ? 'text-stone-400' : 'text-white'}`} /></div>
+   194→   693→   693→              <div className="min-w-0"><p className={`text-sm ${m.read ? 'text-stone-600' : 'font-semibold text-stone-900'}`}>{m.name} — {m.company || m.email}</p><p className="text-xs text-stone-500 truncate">{m.message}</p></div>
+   195→   694→   694→            </div>
+   196→   695→   695→          ))}</div>
+   197→   696→   696→        </CardContent></Card>
+   198→   697→   697→      </div>
+   199→   698→   698→    </div>
+   200→   699→   699→  );
+   201→   700→   700→}
+   202→   701→   701→
+   203→   702→   702→/* ─── Customers ─── */
+   204→   703→   703→function CustomersSection({ customers, onRefresh }: { customers: Customer[]; onRefresh: () => void }) {
+   205→   704→   704→  const [search, setSearch] = useState('');
+   206→   705→   705→  const [showAdd, setShowAdd] = useState(false);
+   207→   706→   706→  const [editId, setEditId] = useState<string | null>(null);
+   208→   707→   707→  const [form, setForm] = useState({ companyName: '', contactName: '', email: '', phone: '', industry: '', plan: 'Bas', status: 'active', notes: '' });
+   209→   708→   708→
+   210→   709→   709→  const filtered = customers.filter(c => c.companyName.toLowerCase().includes(search.toLowerCase()) || c.contactName.toLowerCase().includes(search.toLowerCase()));
+   211→   710→   710→
+   212→   711→   711→  const openAdd = () => { setForm({ companyName: '', contactName: '', email: '', phone: '', industry: '', plan: 'Bas', status: 'active', notes: '' }); setShowAdd(true); };
+   213→   712→   712→  const openEdit = (c: Customer) => { setForm({ companyName: c.companyName, contactName: c.contactName, email: c.email, phone: c.phone || '', industry: c.industry || '', plan: c.plan, status: c.status, notes: c.notes || '' }); setEditId(c.id); };
+   214→   713→   713→
+   215→   714→   714→  const saveCustomer = async () => {
+   216→   715→   715→    if (editId) { await fetch(`/api/customers/${editId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) }); }
+   217→   716→   716→    else { await fetch('/api/customers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) }); }
+   218→   717→   717→    setShowAdd(false); setEditId(null); onRefresh();
+   219→   718→   718→  };
+   220→   719→   719→
+   221→   720→   720→  const deleteCustomer = async (id: string) => { if (confirm('Ta bort denna kund?')) { await fetch(`/api/customers/${id}`, { method: 'DELETE' }); onRefresh(); } };
+   222→   721→   721→
+   223→   722→   722→  return (
+   224→   723→   723→    <div className="space-y-4">
+   225→   724→   724→      <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+   226→   725→   725→        <div className="relative flex-1 max-w-sm"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" /><Input placeholder="Sök kund..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-10" /></div>
+   227→   726→   726→        <Button onClick={openAdd} className="bg-stone-900 hover:bg-stone-800 text-white active:scale-[0.97] transition-transform"><Plus className="w-4 h-4 mr-2" />Ny kund</Button>
+   228→   727→   727→      </div>
+   229→   728→   728→
+   230→   729→   729→      <Card className="border-stone-200 overflow-hidden">
+   231→   730→   730→        <div className="overflow-x-auto">
+   232→   731→   731→          <table className="w-full text-sm">
+   233→   732→   732→            <thead><tr className="bg-stone-50 border-b border-stone-200"><th className="text-left px-4 py-3 font-medium text-stone-500">Företag</th><th className="text-left px-4 py-3 font-medium text-stone-500">Kontakt</th><th className="text-left px-4 py-3 font-medium text-stone-500 hidden md:table-cell">Bransch</th><th className="text-left px-4 py-3 font-medium text-stone-500">Paket</th><th className="text-left px-4 py-3 font-medium text-stone-500">Status</th><th className="text-right px-4 py-3 font-medium text-stone-500">Åtgärd</th></tr></thead>
+   234→   733→   733→            <tbody>{filtered.map(c => (
+   235→   734→   734→              <tr key={c.id} className="border-b border-stone-100 hover:bg-stone-50"><td className="px-4 py-3 font-medium text-stone-900">{c.companyName}</td><td className="px-4 py-3 text-stone-600">{c.contactName}</td><td className="px-4 py-3 text-stone-600 hidden md:table-cell">{c.industry}</td><td className="px-4 py-3"><Badge variant="secondary" className="text-xs">{c.plan}</Badge></td><td className="px-4 py-3"><Badge className={`${statusColors[c.status] || ''} text-xs`}>{statusLabels[c.status] || c.status}</Badge></td><td className="px-4 py-3 text-right"><button onClick={() => openEdit(c)} className="p-1 text-stone-400 hover:text-stone-700"><Edit className="w-4 h-4" /></button><button onClick={() => deleteCustomer(c.id)} className="p-1 text-stone-400 hover:text-red-600 ml-1"><Trash2 className="w-4 h-4" /></button></td></tr>
+   236→   735→   735→            ))}</tbody>
+   237→   736→   736→          </table>
+   238→   737→   737→        </div>
+   239→   738→   738→        {filtered.length === 0 && <div className="text-center py-10 text-stone-500">Inga kunder hittades</div>}
+   240→   739→   739→      </Card>
+   241→   740→   740→
+   242→   741→   741→      {(showAdd || editId) && (
+   243→   742→   742→        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => { setShowAdd(false); setEditId(null); }}>
+   244→   743→   743→          <Card className="w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
+   245→   744→   744→            <CardHeader><CardTitle className="font-[family-name:var(--font-display)]">{editId ? 'Redigera kund' : 'Ny kund'}</CardTitle></CardHeader>
+   246→   745→   745→            <CardContent className="space-y-4">
+   247→   746→   746→              <div><label className="block text-sm font-medium mb-1">Företag</label><Input value={form.companyName} onChange={e => setForm({ ...form, companyName: e.target.value })} /></div>
+   248→   747→   747→              <div className="grid grid-cols-2 gap-4"><div><label className="block text-sm font-medium mb-1">Kontaktperson</label><Input value={form.contactName} onChange={e => setForm({ ...form, contactName: e.target.value })} /></div><div><label className="block text-sm font-medium mb-1">E-post</label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} /></div></div>
+   249→   748→   748→              <div className="grid grid-cols-2 gap-4"><div><label className="block text-sm font-medium mb-1">Telefon</label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} /></div><div><label className="block text-sm font-medium mb-1">Bransch</label><Input value={form.industry} onChange={e => setForm({ ...form, industry: e.target.value })} /></div></div>
+   250→   749→   749→              <div className="grid grid-cols-2 gap-4">
+   251→   750→   750→                <div><label className="block text-sm font-medium mb-1">Paket</label><select value={form.plan} onChange={e => setForm({ ...form, plan: e.target.value })} className="w-full h-9 rounded-md border border-stone-300 px-3 text-sm"><option>Bas</option><option>Pro</option><option>Premium</option></select></div>
+   252→   751→   751→                <div><label className="block text-sm font-medium mb-1">Status</label><select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} className="w-full h-9 rounded-md border border-stone-300 px-3 text-sm"><option value="active">Aktiv</option><option value="paused">Pausad</option><option value="cancelled">Avslutad</option></select></div>
+   253→   752→   752→              </div>
+   254→   753→   753→              <div><label className="block text-sm font-medium mb-1">Anteckningar</label><Textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} rows={3} /></div>
+   255→   754→   754→              <div className="flex gap-3 pt-2"><Button onClick={saveCustomer} className="bg-stone-900 hover:bg-stone-800 text-white flex-1 active:scale-[0.97] transition-transform">{editId ? 'Spara ändringar' : 'Skapa kund'}</Button><Button variant="outline" onClick={() => { setShowAdd(false); setEditId(null); }}>Avbryt</Button></div>
+   256→   755→   755→            </CardContent>
+   257→   756→   756→          </Card>
+   258→   757→   757→        </div>
+   259→   758→   758→      )}
+   260→   759→   759→    </div>
+   261→   760→   760→  );
+   262→   761→   761→}
+   263→   762→   762→
+   264→   763→   763→/* ─── Projects ─── */
+   265→   764→   764→function ProjectsSection({ projects, customers, onRefresh }: { projects: Project[]; customers: Customer[]; onRefresh: () => void }) {
+   266→   765→   765→  const [showAdd, setShowAdd] = useState(false);
+   267→   766→   766→  const [form, setForm] = useState({ customerId: '', name: '', description: '', status: 'planning' });
+   268→   767→   767→
+   269→   768→   768→  const saveProject = async () => {
+   270→   769→   769→    await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, startDate: new Date().toISOString() }) });
+   271→   770→   770→    setShowAdd(false); setForm({ customerId: '', name: '', description: '', status: 'planning' }); onRefresh();
+   272→   771→   771→  };
+   273→   772→   772→
+   274→   773→   773→  return (
+   275→   774→   774→    <div className="space-y-4">
+   276→   775→   775→      <div className="flex justify-end"><Button onClick={() => setShowAdd(true)} className="bg-stone-900 hover:bg-stone-800 text-white active:scale-[0.97] transition-transform"><Plus className="w-4 h-4 mr-2" />Nytt projekt</Button></div>
+   277→   776→   776→      <Card className="border-stone-200 overflow-hidden"><div className="overflow-x-auto">
+   278→   777→   777→        <table className="w-full text-sm">
+   279→   778→   778→          <thead><tr className="bg-stone-50 border-b border-stone-200"><th className="text-left px-4 py-3 font-medium text-stone-500">Projekt</th><th className="text-left px-4 py-3 font-medium text-stone-500">Kund</th><th className="text-left px-4 py-3 font-medium text-stone-500">Status</th><th className="text-left px-4 py-3 font-medium text-stone-500 hidden md:table-cell">Start</th><th className="text-right px-4 py-3 font-medium text-stone-500">Åtgärd</th></tr></thead>
+   280→   779→   779→          <tbody>{projects.map(p => (
+   281→   780→   780→            <tr key={p.id} className="border-b border-stone-100 hover:bg-stone-50"><td className="px-4 py-3 font-medium text-stone-900">{p.name}</td><td className="px-4 py-3 text-stone-600">{p.customer?.companyName || '—'}</td><td className="px-4 py-3"><Badge className={`${statusColors[p.status] || ''} text-xs`}>{statusLabels[p.status] || p.status}</Badge></td><td className="px-4 py-3 text-stone-500 hidden md:table-cell">{new Date(p.startDate).toLocaleDateString('sv-SE')}</td><td className="px-4 py-3 text-right"><button onClick={async () => { await fetch(`/api/projects/${p.id}`, { method: 'DELETE' }); onRefresh(); }} className="p-1 text-stone-400 hover:text-red-600"><Trash2 className="w-4 h-4" /></button></td></tr>
+   282→   781→   781→          ))}</tbody>
+   283→   782→   782→        </table>
+   284→   783→   783→      </div></Card>
+   285→   784→   784→      {showAdd && (
+   286→   785→   785→        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setShowAdd(false)}>
+   287→   786→   786→          <Card className="w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
+   288→   787→   787→            <CardHeader><CardTitle className="font-[family-name:var(--font-display)]">Nytt projekt</CardTitle></CardHeader>
+   289→   788→   788→            <CardContent className="space-y-4">
+   290→   789→   789→              <div><label className="block text-sm font-medium mb-1">Kund</label><select value={form.customerId} onChange={e => setForm({ ...form, customerId: e.target.value })} className="w-full h-9 rounded-md border border-stone-300 px-3 text-sm"><option value="">Välj kund...</option>{customers.filter(c => c.status === 'active').map(c => <option key={c.id} value={c.id}>{c.companyName}</option>)}</select></div>
+   291→   790→   790→              <div><label className="block text-sm font-medium mb-1">Projektnamn</label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+   292→   791→   791→              <div><label className="block text-sm font-medium mb-1">Beskrivning</label><Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} /></div>
+   293→   792→   792→              <div><label className="block text-sm font-medium mb-1">Status</label><select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} className="w-full h-9 rounded-md border border-stone-300 px-3 text-sm"><option value="planning">Planering</option><option value="in_progress">Pågående</option><option value="review">Granskning</option><option value="completed">Klar</option></select></div>
+   294→   793→   793→              <div className="flex gap-3 pt-2"><Button onClick={saveProject} className="bg-stone-900 hover:bg-stone-800 text-white flex-1 active:scale-[0.97] transition-transform">Skapa projekt</Button><Button variant="outline" onClick={() => setShowAdd(false)}>Avbryt</Button></div>
+   295→   794→   794→            </CardContent>
+   296→   795→   795→          </Card>
+   297→   796→   796→        </div>
+   298→   797→   797→      )}
+   299→   798→   798→    </div>
+   300→   799→   799→  );
+   301→   800→   800→}
+   302→   801→   801→
+   303→   802→   802→/* ─── Invoices ─── */
+   304→   803→   803→function InvoicesSection({ invoices, customers, onRefresh }: { invoices: Invoice[]; customers: Customer[]; onRefresh: () => void }) {
+   305→   804→   804→  const [showAdd, setShowAdd] = useState(false);
+   306→   805→   805→  const [form, setForm] = useState({ customerId: '', amount: '', description: '', dueDate: '' });
+   307→   806→   806→
+   308→   807→   807→  const totalUnpaid = invoices.filter(i => i.status === 'pending' || i.status === 'overdue').reduce((s, i) => s + i.amount, 0);
+   309→   808→   808→
+   310→   809→   809→  const saveInvoice = async () => {
+   311→   810→   810→    await fetch('/api/invoices', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ customerId: form.customerId, amount: parseFloat(form.amount), description: form.description, dueDate: new Date(form.dueDate).toISOString(), status: 'pending' }) });
+   312→   811→   811→    setShowAdd(false); setForm({ customerId: '', amount: '', description: '', dueDate: '' }); onRefresh();
+   313→   812→   812→  };
+   314→   813→   813→
+   315→   814→   814→  const markPaid = async (id: string) => { await fetch(`/api/invoices/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'paid', paidDate: new Date().toISOString() }) }); onRefresh(); };
+   316→   815→   815→
+   317→   816→   816→  return (
+   318→   817→   817→    <div className="space-y-4">
+   319→   818→   818→      <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+   320→   819→   819→        <div className="text-stone-600">Obetalt: <span className="text-xl font-bold text-red-600 font-[family-name:var(--font-display)]">{totalUnpaid.toLocaleString('sv-SE')} kr</span></div>
+   321→   820→   820→        <Button onClick={() => setShowAdd(true)} className="bg-stone-900 hover:bg-stone-800 text-white active:scale-[0.97] transition-transform"><Plus className="w-4 h-4 mr-2" />Ny faktura</Button>
+   322→   821→   821→      </div>
+   323→   822→   822→      <Card className="border-stone-200 overflow-hidden"><div className="overflow-x-auto">
+   324→   823→   823→        <table className="w-full text-sm">
+   325→   824→   824→          <thead><tr className="bg-stone-50 border-b border-stone-200"><th className="text-left px-4 py-3 font-medium text-stone-500">Beskrivning</th><th className="text-left px-4 py-3 font-medium text-stone-500">Kund</th><th className="text-left px-4 py-3 font-medium text-stone-500">Belopp</th><th className="text-left px-4 py-3 font-medium text-stone-500">Förfallo</th><th className="text-left px-4 py-3 font-medium text-stone-500">Status</th><th className="text-right px-4 py-3 font-medium text-stone-500">Åtgärd</th></tr></thead>
+   326→   825→   825→          <tbody>{invoices.map(inv => (
+   327→   826→   826→            <tr key={inv.id} className="border-b border-stone-100 hover:bg-stone-50"><td className="px-4 py-3 font-medium text-stone-900">{inv.description}</td><td className="px-4 py-3 text-stone-600">{inv.customer?.companyName || '—'}</td><td className="px-4 py-3 text-stone-900 font-medium">{inv.amount.toLocaleString('sv-SE')} kr</td><td className="px-4 py-3 text-stone-500">{new Date(inv.dueDate).toLocaleDateString('sv-SE')}</td><td className="px-4 py-3"><Badge className={`${statusColors[inv.status] || ''} text-xs`}>{statusLabels[inv.status] || inv.status}</Badge></td><td className="px-4 py-3 text-right">{inv.status !== 'paid' && <button onClick={() => markPaid(inv.id)} className="text-xs text-emerald-600 hover:text-emerald-800 font-medium">Markera betald</button>}</td></tr>
+   328→   827→   827→          ))}</tbody>
+   329→   828→   828→        </table>
+   330→   829→   829→      </div></Card>
+   331→   830→   830→      {showAdd && (
+   332→   831→   831→        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setShowAdd(false)}>
+   333→   832→   832→          <Card className="w-full max-w-lg shadow-2xl" onClick={e => e.stopPropagation()}>
+   334→   833→   833→            <CardHeader><CardTitle className="font-[family-name:var(--font-display)]">Ny faktura</CardTitle></CardHeader>
+   335→   834→   834→            <CardContent className="space-y-4">
+   336→   835→   835→              <div><label className="block text-sm font-medium mb-1">Kund</label><select value={form.customerId} onChange={e => setForm({ ...form, customerId: e.target.value })} className="w-full h-9 rounded-md border border-stone-300 px-3 text-sm"><option value="">Välj kund...</option>{customers.map(c => <option key={c.id} value={c.id}>{c.companyName}</option>)}</select></div>
+   337→   836→   836→              <div><label className="block text-sm font-medium mb-1">Belopp (kr)</label><Input type="number" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} /></div>
+   338→   837→   837→              <div><label className="block text-sm font-medium mb-1">Beskrivning</label><Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></div>
+   339→   838→   838→              <div><label className="block text-sm font-medium mb-1">Förfallodatum</label><Input type="date" value={form.dueDate} onChange={e => setForm({ ...form, dueDate: e.target.value })} /></div>
+   340→   839→   839→              <div className="flex gap-3 pt-2"><Button onClick={saveInvoice} className="bg-stone-900 hover:bg-stone-800 text-white flex-1 active:scale-[0.97] transition-transform">Skapa faktura</Button><Button variant="outline" onClick={() => setShowAdd(false)}>Avbryt</Button></div>
+   341→   840→   840→            </CardContent>
+   342→   841→   841→          </Card>
+   343→   842→   842→        </div>
+   344→   843→   843→      )}
+   345→   844→   844→    </div>
+   346→   845→   845→  );
+   347→   846→   846→}
+   348→   847→   847→
+   349→   848→   848→/* ─── Messages ─── */
+   350→   849→   849→function MessagesSection({ messages, onRefresh }: { messages: ContactMsg[]; onRefresh: () => void }) {
+   351→   850→   850→  const toggleRead = async (m: ContactMsg) => { await fetch(`/api/contact/${m.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ read: !m.read }) }); onRefresh(); };
+   352→   851→   851→  const deleteMsg = async (id: string) => { await fetch(`/api/contact/${id}`, { method: 'DELETE' }); onRefresh(); };
+   353→   852→   852→
+   354→   853→   853→  return (
+   355→   854→   854→    <div className="space-y-3">
+   356→   855→   855→      {messages.length === 0 && <Card className="border-stone-200"><CardContent className="py-10 text-center text-stone-500">Inga meddelanden</CardContent></Card>}
+   357→   856→   856→      {messages.map(m => (
+   358→   857→   857→        <Card key={m.id} className={`border-stone-200 transition-all ${!m.read ? 'border-l-4 border-l-stone-900 bg-stone-50/50' : ''}`}>
+   359→   858→   858→          <CardContent className="p-5">
+   360→   859→   859→            <div className="flex items-start justify-between gap-4">
+   361→   860→   860→              <div className="min-w-0 flex-1">
+   362→   861→   861→                <div className="flex items-center gap-2 mb-1"><p className={`text-sm ${!m.read ? 'font-semibold text-stone-900' : 'text-stone-700'}`}>{m.name}</p>{m.company && <Badge variant="secondary" className="text-xs">{m.company}</Badge>}</div>
+   363→   862→   862→                <p className="text-xs text-stone-500 mb-2">{m.email}{m.phone ? ` · ${m.phone}` : ''} · {new Date(m.createdAt).toLocaleDateString('sv-SE')}</p>
+   364→   863→   863→                <p className="text-stone-600 text-sm leading-relaxed">{m.message}</p>
+   365→   864→   864→              </div>
+   366→   865→   865→              <div className="flex gap-1 shrink-0">
+   367→   866→   866→                <button onClick={() => toggleRead(m)} className="p-1.5 text-stone-400 hover:text-stone-700 rounded" title={m.read ? 'Markera oläst' : 'Markera läst'}>{m.read ? <Mail className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}</button>
+   368→   867→   867→                <button onClick={() => deleteMsg(m.id)} className="p-1.5 text-stone-400 hover:text-red-600 rounded" title="Ta bort"><Trash2 className="w-4 h-4" /></button>
+   369→   868→   868→              </div>
+   370→   869→   869→            </div>
+   371→   870→   870→          </CardContent>
+   372→   871→   871→        </Card>
+   373→   872→   872→      ))}
+   374→   873→   873→    </div>
+   375→   874→   874→  );
+   376→   875→   875→}
+   377→   876→   876→
+   378→   877→   877→/* ─── Settings ─── */
+   379→   878→   878→function SettingsSection() {
+   380→   879→   879→  const [currentPw, setCurrentPw] = useState('');
+   381→   880→   880→  const [newPw, setNewPw] = useState('');
+   382→   881→   881→  const [saved, setSaved] = useState(false);
+   383→   882→   882→
+   384→   883→   883→  const handleSave = async (e: React.FormEvent) => {
+   385→   884→   884→    e.preventDefault();
+   386→   885→   885→    setSaved(true);
+   387→   886→   886→    setTimeout(() => setSaved(false), 3000);
+   388→   887→   887→  };
+   389→   888→   888→
+   390→   889→   889→  return (
+   391→   890→   890→    <div className="max-w-md space-y-6">
+   392→   891→   891→      <Card className="border-stone-200"><CardHeader><CardTitle className="font-[family-name:var(--font-display)]">Ändra lösenord</CardTitle></CardHeader><CardContent>
+   393→   892→   892→        <form onSubmit={handleSave} className="space-y-4">
+   394→   893→   893→          <div><label className="block text-sm font-medium mb-1">Nuvarande lösenord</label><Input type="password" value={currentPw} onChange={e => setCurrentPw(e.target.value)} /></div>
+   395→   894→   894→          <div><label className="block text-sm font-medium mb-1">Nytt lösenord</label><Input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} /></div>
+   396→   895→   895→          <Button type="submit" className="bg-stone-900 hover:bg-stone-800 text-white active:scale-[0.97] transition-transform">{saved ? 'Sparat!' : 'Spara lösenord'}</Button>
+   397→   896→   896→        </form>
+   398→   897→   897→      </CardContent></Card>
+   399→   898→   898→    </div>
+   400→   899→   899→  );
+   401→   900→   900→}
+   402→   901→   901→
+   403→   902→   902→/* ═══════════════════════════════════════════
+   404→   903→   903→   MAIN PAGE
+   405→   904→   904→   ═══════════════════════════════════════════ */
+   406→   905→   905→export default function Home() {
+   407→   906→   906→  const [view, setView] = useState<View>('landing');
+   408→   907→   907→  const [loggedIn, setLoggedIn] = useState(false);
+   409→   908→   908→
+   410→   909→   909→  useEffect(() => {
+   411→   910→   910→    // Check if session cookie exists
+   412→   911→   911→    const checkSession = async () => {
+   413→   912→   912→      try {
+   414→   913→   913→        const res = await fetch('/api/stats');
+   415→   914→   914→        if (res.ok) { setLoggedIn(true); } // If stats API works, we're authenticated
+   416→   915→   915→      } catch { /* not logged in */ }
+   417→   916→   916→    };
+   418→   917→   917→    // Don't auto-login, let user click login
+   419→   918→   918→  }, []);
+   420→   919→   919→
+   421→   920→   920→  const handleLogin = () => { setLoggedIn(true); setView('dashboard'); };
+   422→   921→   921→  const handleLogout = () => { setLoggedIn(false); setView('landing'); document.cookie = 'ownli_session=; max-age=0; path=/'; };
+   423→   922→   922→
+   424→   923→   923→  if (view === 'login') return <LoginPage onLogin={handleLogin} onBack={() => setView('landing')} />;
+   425→   924→   924→  if (view === 'dashboard' && loggedIn) return <Dashboard onLogout={handleLogout} />;
+   426→   925→   925→  return <LandingPage onLogin={() => setView('login')} />;
+   427→   926→   926→}
+   428→   927→   927→

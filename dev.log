@@ -1,33 +1,14 @@
 ▲ Next.js 16.1.3 (Turbopack)
 - Local:         http://localhost:3000
-- Network:       http://21.0.6.244:3000
+- Network:       http://21.0.9.28:3000
 - Environments: .env
 
 ✓ Starting...
-Attention: Next.js now collects completely anonymous telemetry regarding usage.
-This information is used to shape Next.js' roadmap and prioritize features.
-You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
-https://nextjs.org/telemetry
-
-✓ Ready in 1015ms
- GET / 200 in 3.4s (compile: 3.2s, render: 205ms)
- GET / 200 in 62ms (compile: 4ms, render: 58ms)
- GET / 200 in 84ms (compile: 4ms, render: 80ms)
- GET / 200 in 82ms (compile: 3ms, render: 79ms)
- GET / 200 in 70ms (compile: 3ms, render: 67ms)
- GET / 200 in 143ms (compile: 2ms, render: 141ms)
- GET / 200 in 80ms (compile: 3ms, render: 77ms)
- GET / 200 in 57ms (compile: 2ms, render: 55ms)
- GET / 200 in 63ms (compile: 2ms, render: 61ms)
+✓ Ready in 1076ms
+ GET / 200 in 1789ms (compile: 1583ms, render: 205ms)
+ GET / 200 in 76ms (compile: 4ms, render: 72ms)
+ GET / 200 in 50ms (compile: 3ms, render: 47ms)
  GET / 200 in 82ms (compile: 4ms, render: 78ms)
- GET / 200 in 113ms (compile: 2ms, render: 111ms)
- GET / 200 in 56ms (compile: 3ms, render: 53ms)
- GET / 200 in 59ms (compile: 2ms, render: 57ms)
- GET / 200 in 59ms (compile: 2ms, render: 56ms)
- GET / 200 in 54ms (compile: 2ms, render: 52ms)
- GET / 200 in 51ms (compile: 2ms, render: 49ms)
-✓ Compiled in 182ms
-✓ Compiled in 86ms
- GET / 200 in 256ms (compile: 61ms, render: 195ms)
- GET / 200 in 64ms (compile: 2ms, render: 62ms)
- GET / 200 in 112ms (compile: 5ms, render: 106ms)
+ GET / 200 in 74ms (compile: 3ms, render: 71ms)
+ GET / 200 in 62ms (compile: 2ms, render: 60ms)
+ GET / 200 in 73ms (compile: 3ms, render: 70ms)
