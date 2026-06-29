@@ -72,9 +72,12 @@ function useReveal(animateClass = 'reveal') {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // If it already has an animation class, keep it; otherwise add the specified one
+    const hasAnimClass = ['reveal', 'reveal-up-lg', 'reveal-left', 'reveal-right', 'reveal-scale', 'reveal-blur', 'reveal-clip', 'reveal-rotate', 'stagger-children', 'stagger-scale', 'process-stagger', 'stat-glow', 'line-draw', 'section-divider'].some(c => el.classList.contains(c));
+    if (!hasAnimClass) el.classList.add(animateClass);
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { el.classList.add('visible'); observer.unobserve(el); } },
-      { threshold: 0.08, rootMargin: '0px 0px -48px 0px' }
+      { threshold: 0.06, rootMargin: '0px 0px -32px 0px' }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -186,11 +189,19 @@ function LandingPage() {
   const processRef = useReveal();
   const statsRef = useReveal();
   const testimonialsRef = useReveal();
-  const aboutLeftRef = useReveal();
-  const aboutRightRef = useReveal();
+  const aboutLeftRef = useReveal('reveal-left');
+  const aboutRightRef = useReveal('reveal-right');
   const faqRef = useReveal();
-  const contactLeftRef = useReveal();
-  const contactRightRef = useReveal();
+  const contactLeftRef = useReveal('reveal-left');
+  const contactRightRef = useReveal('reveal-right');
+  // Section divider refs
+  const divider1Ref = useReveal();
+  const divider2Ref = useReveal();
+  const divider3Ref = useReveal();
+  const divider4Ref = useReveal();
+  const divider5Ref = useReveal();
+  const divider6Ref = useReveal();
+  const divider7Ref = useReveal();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -235,14 +246,14 @@ function LandingPage() {
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 sm:py-40 w-full">
             {/* LEFT-ALIGNED hero for character */}
             <div className="max-w-2xl">
-              <div className="mb-6 inline-flex items-center gap-2 text-blue-300 text-xs font-semibold tracking-[0.25em] uppercase font-[family-name:var(--font-display)]"><span className="h-px w-8 bg-blue-400/60" />Du äger. Vi bygger.<span className="h-px w-8 bg-blue-400/60" /></div>
-              <h1 className="text-5xl sm:text-6xl lg:text-8xl font-extrabold text-white leading-[0.95] mb-6 font-[family-name:var(--font-display)]">{hero.title[0]}<span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">{hero.title[1]}</span>{hero.title[2]}</h1>
-              <p className="text-lg sm:text-xl text-stone-300 mb-10 max-w-xl leading-relaxed">{hero.subtitle}</p>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="mb-6 inline-flex items-center gap-2 text-blue-300 text-xs font-semibold tracking-[0.25em] uppercase font-[family-name:var(--font-display)] hero-badge-anim"><span className="h-px w-8 bg-blue-400/60" />Du äger. Vi bygger.<span className="h-px w-8 bg-blue-400/60" /></div>
+              <h1 className="text-5xl sm:text-6xl lg:text-8xl font-extrabold text-white leading-[0.95] mb-6 font-[family-name:var(--font-display)]"><span className="hero-title-anim inline-block">{hero.title[0]}</span><span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 hero-title-anim inline-block">{hero.title[1]}</span><span className="hero-title-anim inline-block">{hero.title[2]}</span></h1>
+              <p className="text-lg sm:text-xl text-stone-300 mb-10 max-w-xl leading-relaxed hero-title-anim">{hero.subtitle}</p>
+              <div className="flex flex-col sm:flex-row gap-4 hero-cta-anim">
                 <a href="#priser"><Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 text-lg h-14 w-full sm:w-auto shadow-lg shadow-blue-600/25 active:scale-[0.97] transition-transform">Se våra priser <ArrowRight className="w-5 h-5 ml-2" /></Button></a>
                 <a href="#process"><Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 rounded-full px-8 text-lg h-14 w-full sm:w-auto active:scale-[0.97] transition-transform">Så fungerar det</Button></a>
               </div>
-              <div className="mt-12 flex flex-wrap gap-2 sm:gap-3">
+              <div className="mt-12 flex flex-wrap gap-2 sm:gap-3 hero-badges-anim">
                 {['.SE-domän ingår', 'SSL/HTTPS inkluderat', 'Svensk support', '99.9% upptid'].map(l => (
                   <span key={l} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 text-stone-200 text-xs sm:text-sm">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />{l}
@@ -257,11 +268,11 @@ function LandingPage() {
         {/* SERVICES — fade up header + staggered cards */}
         <section id="tjanster" className="py-24 sm:py-32 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-xl mb-16 reveal" ref={servicesRef}>
+            <div className="max-w-xl mb-16 reveal-up-lg" ref={servicesRef}>
               <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Allt ditt företag behöver på nätet</h2>
               <p className="text-lg text-stone-500 leading-relaxed">Från domän och hosting till design och e-post — vi hanterar allt tekniskt så att du kan fokusera på din verksamhet.</p>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 stagger-children" ref={useReveal()}>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 stagger-scale" ref={useReveal()}>
               {services.map((s, i) => { const Icon = s.icon; return (
                 <Card key={s.title} className={`group relative border-stone-200 hover:border-stone-400 hover:shadow-lg transition-all duration-300 overflow-hidden ${i === 0 ? 'sm:col-span-2 lg:col-span-1' : ''}`}>
                   <div className="absolute top-0 left-0 right-0 h-0.5 bg-stone-900 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
@@ -280,6 +291,9 @@ function LandingPage() {
           </div>
         </section>
 
+        {/* Divider 1 */}
+        <div className="section-divider max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={divider1Ref} />
+
         {/* INDUSTRIES — staggered cards */}
         <section id="branscher" className="py-24 sm:py-32 bg-stone-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -288,7 +302,7 @@ function LandingPage() {
               <p className="text-lg text-stone-500">Oavsett bransch hjälper vi ditt företag att synas online</p>
             </div>
             {/* Mobile: horizontal scroll. Desktop: grid */}
-            <div className="flex lg:grid lg:grid-cols-4 gap-5 overflow-x-auto pb-4 lg:pb-0 snap-x snap-mandatory -mx-4 px-4 lg:mx-0 lg:px-0 scrollbar-hide stagger-children" ref={useReveal()}>
+            <div className="flex lg:grid lg:grid-cols-4 gap-5 overflow-x-auto pb-4 lg:pb-0 snap-x snap-mandatory -mx-4 px-4 lg:mx-0 lg:px-0 scrollbar-hide stagger-scale" ref={useReveal()}>
               {industries.map(ind => { const Icon = ind.icon; return (
                 <Card key={ind.name} className="group border-stone-200 hover:border-stone-400 hover:shadow-lg transition-all duration-300 text-center bg-white min-w-[200px] lg:min-w-0 snap-start shrink-0 lg:shrink">
                   <CardHeader className="items-center pb-2 pt-6">
@@ -303,6 +317,9 @@ function LandingPage() {
           </div>
         </section>
 
+        {/* Divider 2 */}
+        <div className="section-divider max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={divider2Ref} />
+
         {/* PRICING — blur in + scale */}
         <section id="priser" className="py-24 sm:py-32 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -312,7 +329,7 @@ function LandingPage() {
             </div>
 
             <div className="mb-20">
-              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto stagger-children" ref={useReveal()}>
+              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto stagger-scale" ref={useReveal()}>
                 {purchaseOptions.map(opt => (
                   <Card key={opt.name} className={`relative flex flex-col transition-all duration-300 hover:-translate-y-1 ${opt.highlighted ? 'border-2 border-blue-600 shadow-xl shadow-blue-500/10 scale-[1.02] bg-gradient-to-b from-blue-50/50 to-white' : 'border-stone-200 hover:shadow-lg hover:border-stone-300'}`}>
                     {opt.highlighted && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><Badge className="bg-blue-600 text-white px-4 py-1 text-sm shadow-md shadow-blue-600/30">Mest populär</Badge></div>}
@@ -346,6 +363,9 @@ function LandingPage() {
           </div>
         </section>
 
+        {/* Divider 3 */}
+        <div className="section-divider max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={divider3Ref} />
+
         {/* PROCESS — Dark, staggered step animation */}
         <section id="process" className="py-24 sm:py-32 bg-stone-900 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -368,6 +388,9 @@ function LandingPage() {
           </div>
         </section>
 
+        {/* Divider 4 */}
+        <div className="section-divider max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={divider4Ref} />
+
         {/* STATS — Animated counters */}
         <section className="relative py-14 bg-stone-950 overflow-hidden">
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
@@ -381,13 +404,16 @@ function LandingPage() {
           </div>
         </section>
 
+        {/* Divider 5 */}
+        <div className="section-divider max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={divider5Ref} />
+
         {/* TESTIMONIALS — staggered cards */}
         <section className="py-24 sm:py-32 bg-stone-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-16 reveal-blur" ref={testimonialsRef}>
               <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Vad våra kunder säger</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-8 stagger-children" ref={useReveal()}>
+            <div className="grid md:grid-cols-3 gap-8 stagger-scale" ref={useReveal()}>
               {testimonials.map(t => (
                 <Card key={t.name} className="relative border-stone-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white overflow-hidden">
                   <div className="absolute top-2 right-4 text-8xl leading-none text-stone-100 font-serif select-none pointer-events-none">&ldquo;</div>
@@ -412,6 +438,9 @@ function LandingPage() {
           </div>
         </section>
 
+        {/* Divider 6 */}
+        <div className="section-divider max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={divider6Ref} />
+
         {/* ABOUT — Asymmetric: left slides in, right scales in */}
         <section id="om-oss" className="py-24 sm:py-32 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -429,7 +458,7 @@ function LandingPage() {
                 </div>
               </div>
               <div className="lg:col-span-2 relative reveal-right" ref={aboutRightRef}>
-                <div className="aspect-[3/4] rounded-2xl bg-stone-100 flex items-center justify-center relative overflow-hidden border border-stone-200">
+                <div className="aspect-[3/4] rounded-2xl bg-stone-100 flex items-center justify-center relative overflow-hidden border border-stone-200 reveal-rotate">
                   <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #1c1917 1px, transparent 0)', backgroundSize: '24px 24px' }} />
                   <div className="text-center p-8 relative">
                     <div className="w-16 h-16 rounded-2xl bg-white shadow-lg flex items-center justify-center mx-auto mb-4">
@@ -449,6 +478,9 @@ function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* Divider 7 */}
+        <div className="section-divider max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={divider7Ref} />
 
         {/* FAQ — Smooth animation */}
         <section className="py-24 sm:py-32 bg-stone-50">

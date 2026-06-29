@@ -190,17 +190,33 @@
 }
 
 /* ═══════════════════════════════════════════
-   SCROLL ANIMATIONS
+   SCROLL ANIMATIONS — Premium $10K Feel
    ═══════════════════════════════════════════ */
 
-/* Base reveal — fade up */
+/* ── Easing tokens ── */
+/* spring-out: decelerate like a spring — used everywhere */
+/* expo-out:   sharp decelerate for emphasis elements */
+
+/* Base reveal — fade up (most common) */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(32px);
+  transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Fade up — longer distance for hero-like impact */
+.reveal-up-lg {
+  opacity: 0;
+  transform: translateY(56px);
+  transition: opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-up-lg.visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -208,9 +224,9 @@
 /* Fade from left */
 .reveal-left {
   opacity: 0;
-  transform: translateX(-32px);
-  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(-48px);
+  transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal-left.visible {
   opacity: 1;
@@ -220,9 +236,9 @@
 /* Fade from right */
 .reveal-right {
   opacity: 0;
-  transform: translateX(32px);
-  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(48px);
+  transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal-right.visible {
   opacity: 1;
@@ -232,23 +248,23 @@
 /* Scale up from small */
 .reveal-scale {
   opacity: 0;
-  transform: scale(0.92);
-  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(0.88);
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal-scale.visible {
   opacity: 1;
   transform: scale(1);
 }
 
-/* Blur in (premium feel) */
+/* Blur in — premium cinematic feel */
 .reveal-blur {
   opacity: 0;
-  filter: blur(8px);
-  transform: translateY(12px);
-  transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
-              filter 700ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  filter: blur(12px);
+  transform: translateY(20px);
+  transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
+              filter 900ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal-blur.visible {
   opacity: 1;
@@ -256,61 +272,190 @@
   transform: translateY(0);
 }
 
-/* Stagger children — used on parent container */
+/* Clip reveal — slides up like a curtain */
+.reveal-clip {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-clip.visible {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Rotate in — subtle tilt + fade */
+.reveal-rotate {
+  opacity: 0;
+  transform: perspective(600px) rotateX(8deg) translateY(24px);
+  transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-rotate.visible {
+  opacity: 1;
+  transform: perspective(600px) rotateX(0deg) translateY(0);
+}
+
+/* ── Stagger children — used on parent container ── */
 .stagger-children > * {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(28px);
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .stagger-children.visible > *:nth-child(1) { transition-delay: 0ms; }
-.stagger-children.visible > *:nth-child(2) { transition-delay: 80ms; }
-.stagger-children.visible > *:nth-child(3) { transition-delay: 160ms; }
-.stagger-children.visible > *:nth-child(4) { transition-delay: 240ms; }
-.stagger-children.visible > *:nth-child(5) { transition-delay: 320ms; }
-.stagger-children.visible > *:nth-child(6) { transition-delay: 400ms; }
-.stagger-children.visible > *:nth-child(7) { transition-delay: 480ms; }
-.stagger-children.visible > *:nth-child(8) { transition-delay: 560ms; }
+.stagger-children.visible > *:nth-child(2) { transition-delay: 100ms; }
+.stagger-children.visible > *:nth-child(3) { transition-delay: 200ms; }
+.stagger-children.visible > *:nth-child(4) { transition-delay: 300ms; }
+.stagger-children.visible > *:nth-child(5) { transition-delay: 400ms; }
+.stagger-children.visible > *:nth-child(6) { transition-delay: 500ms; }
+.stagger-children.visible > *:nth-child(7) { transition-delay: 600ms; }
+.stagger-children.visible > *:nth-child(8) { transition-delay: 700ms; }
+.stagger-children.visible > *:nth-child(9) { transition-delay: 800ms; }
+.stagger-children.visible > *:nth-child(10) { transition-delay: 900ms; }
 .stagger-children.visible > * {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Process step stagger — horizontal */
+/* ── Stagger with scale — for card grids ── */
+.stagger-scale > * {
+  opacity: 0;
+  transform: translateY(24px) scale(0.94);
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.stagger-scale.visible > *:nth-child(1) { transition-delay: 0ms; }
+.stagger-scale.visible > *:nth-child(2) { transition-delay: 120ms; }
+.stagger-scale.visible > *:nth-child(3) { transition-delay: 240ms; }
+.stagger-scale.visible > *:nth-child(4) { transition-delay: 360ms; }
+.stagger-scale.visible > *:nth-child(5) { transition-delay: 480ms; }
+.stagger-scale.visible > *:nth-child(6) { transition-delay: 600ms; }
+.stagger-scale.visible > *:nth-child(7) { transition-delay: 720ms; }
+.stagger-scale.visible > *:nth-child(8) { transition-delay: 840ms; }
+.stagger-scale.visible > * {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ── Process step stagger — horizontal with tilt ── */
 .process-stagger > * {
   opacity: 0;
-  transform: translateY(24px) scale(0.95);
-  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(32px) scale(0.92);
+  transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .process-stagger.visible > *:nth-child(1) { transition-delay: 0ms; }
-.process-stagger.visible > *:nth-child(2) { transition-delay: 150ms; }
-.process-stagger.visible > *:nth-child(3) { transition-delay: 300ms; }
-.process-stagger.visible > *:nth-child(4) { transition-delay: 450ms; }
+.process-stagger.visible > *:nth-child(2) { transition-delay: 180ms; }
+.process-stagger.visible > *:nth-child(3) { transition-delay: 360ms; }
+.process-stagger.visible > *:nth-child(4) { transition-delay: 540ms; }
 .process-stagger.visible > * {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
 
-/* Stats counter glow pulse */
+/* ── Stats counter glow pulse ── */
 @keyframes stat-glow {
   0%, 100% { text-shadow: 0 0 0 transparent; }
-  50% { text-shadow: 0 0 20px oklch(0.55 0.15 250 / 0.3); }
+  50% { text-shadow: 0 0 30px oklch(0.55 0.15 250 / 0.4); }
 }
 .stat-glow.visible {
   animation: stat-glow 2s ease-in-out 0.6s 1;
 }
 
-/* Respect prefers-reduced-motion */
+/* ── Parallax scroll hint — subtle float ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.float-subtle {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ── Line draw — horizontal lines that "draw" in ── */
+.line-draw {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.line-draw.visible {
+  transform: scaleX(1);
+}
+
+/* ── Hero badge slide-in ── */
+@keyframes slide-in-badge {
+  0% { opacity: 0; transform: translateY(-12px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hero-badge-anim {
+  animation: slide-in-badge 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Hero title stagger ── */
+@keyframes hero-title-in {
+  0% { opacity: 0; transform: translateY(40px); filter: blur(8px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.hero-title-anim {
+  animation: hero-title-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero-title-anim:nth-child(2) { animation-delay: 150ms; }
+.hero-title-anim:nth-child(3) { animation-delay: 300ms; }
+
+/* ── Hero CTA slide up ── */
+@keyframes cta-slide-up {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.hero-cta-anim {
+  animation: cta-slide-up 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 500ms;
+}
+
+/* ── Hero badges (checkmarks) ── */
+@keyframes badge-pop {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.hero-badges-anim {
+  animation: badge-pop 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 700ms;
+}
+
+/* ── Divider line grow ── */
+@keyframes divider-grow {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+.divider-anim {
+  transform-origin: center;
+  animation: divider-grow 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 200ms;
+}
+
+/* ── Section divider — subtle gradient line ── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, oklch(0.9 0.01 80), transparent);
+  transform: scaleX(0);
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.section-divider.visible {
+  transform: scaleX(1);
+}
+
+/* ── Respect prefers-reduced-motion ── */
 @media (prefers-reduced-motion: reduce) {
-  .reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-blur,
-  .stagger-children > *, .process-stagger > * {
+  .reveal, .reveal-up-lg, .reveal-left, .reveal-right, .reveal-scale,
+  .reveal-blur, .reveal-clip, .reveal-rotate,
+  .stagger-children > *, .stagger-scale > *, .process-stagger > *,
+  .line-draw, .section-divider {
     opacity: 1 !important;
     transform: none !important;
     filter: none !important;
+    clip-path: none !important;
     transition: none !important;
   }
-  .stat-glow.visible {
+  .stat-glow.visible, .float-subtle,
+  .hero-badge-anim, .hero-title-anim, .hero-cta-anim,
+  .hero-badges-anim, .divider-anim {
     animation: none !important;
   }
 }
