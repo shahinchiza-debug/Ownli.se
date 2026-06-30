@@ -100,8 +100,8 @@ export default function OmOssPage() {
               </div>
               <div className="lg:col-span-2 relative reveal-right" ref={useReveal('reveal-right')}>
                 <div className="aspect-[3/4] rounded-2xl overflow-hidden relative border border-stone-200 shadow-lg">
-                  <Image src="/images/team.jpg" alt="Ownli teamet" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 40vw" priority />
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/70 via-transparent to-transparent" />
+                  <Image src="/images/card-expert-support.png" alt="Ownli teamet" fill className="object-cover object-top" sizes="(max-width: 1024px) 100vw, 40vw" priority />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/80 via-stone-900/20 to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6">
                     <p className="text-white font-semibold text-lg font-[family-name:var(--font-display)]">Teamet bakom Ownli</p>
                     <p className="text-stone-300 text-sm mt-1">Teknisk expertis & genuin omsorg</p>
@@ -124,7 +124,7 @@ export default function OmOssPage() {
             <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-stone-200/50" ref={valuesRef}>
               <div className="grid lg:grid-cols-2">
                 <div className="relative aspect-[16/10] lg:aspect-auto">
-                  <Image src="/images/infrastructure.jpg" alt="Serverinfrastruktur" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
+                  <Image src="/images/card-succeed-online.png" alt="Serverinfrastruktur" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-stone-50/10 lg:bg-gradient-to-r lg:from-transparent lg:to-stone-50" />
                 </div>
                 <div className="bg-stone-50 p-8 sm:p-12 flex flex-col justify-center">

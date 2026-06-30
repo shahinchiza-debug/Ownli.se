@@ -7,11 +7,13 @@ import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
 import { useReveal } from '@/components/shared/hooks';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const services = [
   {
     icon: Palette,
     title: 'Skräddarsydd design',
+    img: '/images/card-build-presence.png',
     desc: 'Unik och modern webbdesign anpassad efter ditt företags profil och varumärke. Mobilanpassad, snabb och vacker — varje gång.',
     details: [
       'Egen design från grunden — inga färdiga mallar',
@@ -24,6 +26,7 @@ const services = [
   {
     icon: Globe,
     title: '.SE-domän & hosting',
+    img: '/images/card-succeed-online.png',
     desc: 'Vi ordnar din .SE-domän och lägger din hemsida på snabba och säkra servrar med 99.9% upptid. WHM/cPanel för professionell drift.',
     details: [
       'Registrering av .SE-domän i ditt namn',
@@ -36,6 +39,7 @@ const services = [
   {
     icon: Mail,
     title: 'Professionell e-post',
+    img: '/images/card-hosting-easy.png',
     desc: 'info@dittforetag.se, kontakt@dittforetag.se — e-post med SPF, DKIM och fullt spamskydd. Levereras varje gång.',
     details: [
       'E-post i ditt domännamn (info@, kontakt@, namn@)',
@@ -48,6 +52,7 @@ const services = [
   {
     icon: Shield,
     title: 'SSL & säkerhet',
+    img: '/images/card-fast-secure.png',
     desc: "Let's Encrypt SSL-certifikat, Imunify360 antivirusskydd, ModSecurity WAF och dagliga backuper. Din hemsida är säker hos oss.",
     details: [
       "Gratis Let's Encrypt SSL-certifikat (HTTPS)",
@@ -60,6 +65,7 @@ const services = [
   {
     icon: Smartphone,
     title: 'Mobilanpassad',
+    img: '/images/card-site-priority.png',
     desc: '75% av dina besökare använder mobilen. Vi ser till att din hemsida ser fantastisk ut på alla skärmstorlekar — telefon, surfplatta och dator.',
     details: [
       'Touch-optimerade knappar och menyer',
@@ -72,6 +78,7 @@ const services = [
   {
     icon: BarChart3,
     title: 'SEO & statistik',
+    img: '/images/card-scalable.png',
     desc: 'AWStats-trafikstatistik, Google-optimering och snabba laddningstider. Så att nya kunder hittar ditt företag på nätet.',
     details: [
       'Sökmotoroptimerad kod och struktur',
@@ -135,23 +142,32 @@ export default function TjansterPage() {
                     </Link>
                   </div>
                   <div className={!isEven ? 'lg:order-1' : ''}>
-                    <Card className="border-stone-200 shadow-lg shadow-stone-100/50">
-                      <CardHeader>
-                        <CardTitle className="text-lg text-stone-900 font-[family-name:var(--font-display)]">Vad som ingår</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ul className="space-y-3">
-                          {s.details.map((d, j) => (
-                            <li key={j} className="flex items-start gap-3">
-                              <div className="mt-0.5 w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                              </div>
-                              <span className="text-sm text-stone-700 leading-relaxed">{d}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </CardContent>
-                    </Card>
+                    <div className="space-y-4">
+                      {/* Service illustration */}
+                      <div className="relative rounded-2xl overflow-hidden shadow-lg shadow-stone-100/50 border border-stone-100">
+                        <div className="relative h-56 bg-gradient-to-br from-blue-50 to-stone-50">
+                          <Image src={s.img} alt={s.title} fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" />
+                        </div>
+                      </div>
+                      {/* Details card */}
+                      <Card className="border-stone-200 shadow-lg shadow-stone-100/50">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg text-stone-900 font-[family-name:var(--font-display)]">Vad som ingår</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-2.5">
+                            {s.details.map((d, j) => (
+                              <li key={j} className="flex items-start gap-3">
+                                <div className="mt-0.5 w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                </div>
+                                <span className="text-sm text-stone-700 leading-relaxed">{d}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </div>
                 </div>
               );

@@ -37,12 +37,12 @@ const heroVariants: { title: [string, string, string]; subtitle: string }[] = [
 ];
 
 const services = [
-  { icon: Palette, title: 'Skräddarsydd design', desc: 'Unik och modern webbdesign anpassad efter ditt företags profil. Mobilanpassad, snabb och vacker.' },
-  { icon: Globe, title: '.SE-domän & hosting', desc: 'Vi ordnar din .SE-domän och lägger din hemsida på snabba och säkra servrar med 99.9% upptid.' },
-  { icon: Mail, title: 'Professionell e-post', desc: 'info@dittforetag.se — e-post med SPF, DKIM och fullt spamskydd. Levereras varje gång.' },
-  { icon: Shield, title: 'SSL & säkerhet', desc: "Let's Encrypt SSL, Imunify360, ModSecurity WAF och dagliga backuper. Din hemsida är säker." },
-  { icon: Smartphone, title: 'Mobilanpassad', desc: '75% av dina besökare använder mobilen. Vi ser till att din hemsida ser fantastisk ut överallt.' },
-  { icon: BarChart3, title: 'SEO & statistik', desc: 'AWStats-trafikstatistik, Google-optimering och snabba laddningstider.' },
+  { icon: Palette, title: 'Skräddarsydd design', desc: 'Unik och modern webbdesign anpassad efter ditt företags profil. Mobilanpassad, snabb och vacker.', img: '/images/card-build-presence.png' },
+  { icon: Globe, title: '.SE-domän & hosting', desc: 'Vi ordnar din .SE-domän och lägger din hemsida på snabba och säkra servrar med 99.9% upptid.', img: '/images/card-succeed-online.png' },
+  { icon: Mail, title: 'Professionell e-post', desc: 'info@dittforetag.se — e-post med SPF, DKIM och fullt spamskydd. Levereras varje gång.', img: '/images/card-hosting-easy.png' },
+  { icon: Shield, title: 'SSL & säkerhet', desc: "Let's Encrypt SSL, Imunify360, ModSecurity WAF och dagliga backuper. Din hemsida är säker.", img: '/images/card-fast-secure.png' },
+  { icon: Smartphone, title: 'Mobilanpassad', desc: '75% av dina besökare använder mobilen. Vi ser till att din hemsida ser fantastisk ut överallt.', img: '/images/card-site-priority.png' },
+  { icon: BarChart3, title: 'SEO & statistik', desc: 'AWStats-trafikstatistik, Google-optimering och snabba laddningstider.', img: '/images/card-scalable.png' },
 ];
 
 const testimonials = [
@@ -152,16 +152,23 @@ function LandingPage() {
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 stagger-scale" ref={useReveal()}>
               {services.map((s) => { const Icon = s.icon; return (
-                <Card key={s.title} className="group relative border-stone-200 hover:border-stone-400 hover:shadow-lg transition-all duration-300 overflow-hidden">
-                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-stone-900 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-                  <CardHeader>
-                    <div className="w-12 h-12 rounded-xl bg-stone-100 flex items-center justify-center mb-3 group-hover:bg-stone-900 transition-all duration-300">
-                      <Icon className="w-6 h-6 text-stone-700 group-hover:text-white transition-colors" />
+                <Card key={s.title} className="group relative border-stone-200 hover:border-stone-400 hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                  {/* Service illustration */}
+                  <div className="relative h-44 bg-gradient-to-br from-blue-50 to-stone-50 overflow-hidden">
+                    <Image src={s.img} alt={s.title} fill className="object-cover object-center group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
+                  </div>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-3 mb-1">
+                      <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center group-hover:bg-blue-600 transition-all duration-300">
+                        <Icon className="w-5 h-5 text-stone-700 group-hover:text-white transition-colors" />
+                      </div>
+                      <CardTitle className="text-lg text-stone-900 font-[family-name:var(--font-display)] flex items-center gap-2">
+                        {s.title}
+                        <ArrowRight className="w-4 h-4 text-stone-300 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                      </CardTitle>
                     </div>
-                    <CardTitle className="text-xl text-stone-900 font-[family-name:var(--font-display)] flex items-center justify-between gap-2">
-                      {s.title}
-                      <ArrowRight className="w-4 h-4 text-stone-300 group-hover:text-stone-900 group-hover:translate-x-1 transition-all" />
-                    </CardTitle>
                   </CardHeader>
                   <CardContent><p className="text-stone-500 leading-relaxed text-sm">{s.desc}</p></CardContent>
                 </Card>
@@ -258,12 +265,12 @@ function LandingPage() {
                 </div>
               </div>
               <div className="reveal-right" ref={useReveal('reveal-right')}>
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-stone-200/50">
-                  <Image src="/images/webdesign.jpg" alt="Webdesign av Ownli" width={1344} height={768} className="w-full h-auto object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 to-transparent" />
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-stone-200/50 border border-stone-100">
+                  <Image src="/images/features-grid.png" alt="Ownli — alla tjänster på ett ställe" width={1536} height={1024} className="w-full h-auto object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-stone-900/10 to-transparent" />
                   <div className="absolute bottom-6 left-6 right-6">
-                    <p className="text-white font-semibold font-[family-name:var(--font-display)]">Professionell webbdesign</p>
-                    <p className="text-stone-300 text-sm">Skräddarsydd för svenska företag</p>
+                    <p className="text-white font-semibold text-lg font-[family-name:var(--font-display)]">Allt du behöver — på ett ställe</p>
+                    <p className="text-stone-300 text-sm">Design, domän, hosting, e-post och säkerhet</p>
                   </div>
                 </div>
               </div>
