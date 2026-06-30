@@ -13,6 +13,8 @@ import OwnliLogo from '@/components/OwnliLogo';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
 import Link from 'next/link';
+import Image from 'next/image';
+import { Star } from 'lucide-react';
 
 /* ─── Data ─── */
 const industries = [
@@ -41,6 +43,12 @@ const services = [
   { icon: Shield, title: 'SSL & säkerhet', desc: "Let's Encrypt SSL, Imunify360, ModSecurity WAF och dagliga backuper. Din hemsida är säker." },
   { icon: Smartphone, title: 'Mobilanpassad', desc: '75% av dina besökare använder mobilen. Vi ser till att din hemsida ser fantastisk ut överallt.' },
   { icon: BarChart3, title: 'SEO & statistik', desc: 'AWStats-trafikstatistik, Google-optimering och snabba laddningstider.' },
+];
+
+const testimonials = [
+  { name: 'Marco Rossi', role: 'Ägare, Trattoria Bella', text: 'Våra gäster hittar oss enkelt och bordsbokningarna har ökat med 40% sedan vi bytte till Ownli. Fantastisk service!', stars: 5, img: '/images/testimonial1.jpg' },
+  { name: 'Emma Lindqvist', role: 'Grundare, Nordbygg AB', text: 'Som entreprenör har jag ingen tid med teknik. Ownli sköter allt och deras support är fantastisk. Jag bara ringer och de fixar det.', stars: 5, img: '/images/testimonial2.jpg' },
+  { name: 'Sara Ahmed', role: 'Klinikchef, Hälsokällan', text: 'Vårt bokningssystem online har revolutionerat vår verksamhet. Patienterna bokar enkelt dygnet runt — inga missade samtal längre.', stars: 5, img: '/images/testimonial3.jpg' },
 ];
 
 /* ─── Scroll reveal hook ─── */
@@ -227,24 +235,69 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* CTA */}
+        {/* CTA with image */}
         <section className="py-24 sm:py-32 bg-white">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center reveal-up-lg" ref={ctaRef}>
-            <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-6 font-[family-name:var(--font-display)]">
-              Redo att <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">komma igång</span>?
-            </h2>
-            <p className="text-lg text-stone-500 mb-10 leading-relaxed">Välj mellan direktköp eller avbetalning. Du äger alltid din domän och din kod.</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/priser">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 h-12 text-base shadow-lg shadow-blue-600/25 active:scale-[0.97] transition-transform">
-                  Se priser <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-              <Link href="/kontakt">
-                <Button variant="outline" className="rounded-full border-stone-300 hover:border-stone-900 hover:bg-stone-900 hover:text-white transition-all px-8 h-12">
-                  Kontakta oss
-                </Button>
-              </Link>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div className="reveal-left" ref={useReveal('reveal-left')}>
+                <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-6 font-[family-name:var(--font-display)]">
+                  Redo att <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">komma igång</span>?
+                </h2>
+                <p className="text-lg text-stone-500 mb-10 leading-relaxed">Välj mellan direktköp eller avbetalning. Du äger alltid din domän och din kod.</p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link href="/priser">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 h-12 text-base shadow-lg shadow-blue-600/25 active:scale-[0.97] transition-transform">
+                      Se priser <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
+                  <Link href="/kontakt">
+                    <Button variant="outline" className="rounded-full border-stone-300 hover:border-stone-900 hover:bg-stone-900 hover:text-white transition-all px-8 h-12">
+                      Kontakta oss
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <div className="reveal-right" ref={useReveal('reveal-right')}>
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-stone-200/50">
+                  <Image src="/images/webdesign.jpg" alt="Webdesign av Ownli" width={1344} height={768} className="w-full h-auto object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 to-transparent" />
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <p className="text-white font-semibold font-[family-name:var(--font-display)]">Professionell webbdesign</p>
+                    <p className="text-stone-300 text-sm">Skräddarsydd för svenska företag</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* TESTIMONIALS */}
+        <section className="py-24 sm:py-32 bg-stone-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-16 reveal-blur" ref={useReveal('reveal-blur')}>
+              <h2 className="text-3xl sm:text-5xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Vad våra kunder säger</h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8 stagger-scale" ref={useReveal()}>
+              {testimonials.map(t => (
+                <Card key={t.name} className="relative border-stone-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white overflow-hidden">
+                  <div className="absolute top-2 right-4 text-8xl leading-none text-stone-100 font-serif select-none pointer-events-none">&ldquo;</div>
+                  <CardHeader className="pb-2 relative">
+                    <div className="flex gap-0.5 mb-3">{Array.from({ length: t.stars }).map((_, i) => <Star key={i} className="w-4 h-4 fill-stone-800 text-stone-800" />)}</div>
+                  </CardHeader>
+                  <CardContent className="relative">
+                    <p className="text-stone-700 leading-relaxed mb-6 text-[0.95rem]">&ldquo;{t.text}&rdquo;</p>
+                    <div className="flex items-center gap-3 pt-4 border-t border-stone-100">
+                      <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 relative">
+                        <Image src={t.img} alt={t.name} fill className="object-cover" sizes="40px" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-stone-900 text-sm font-[family-name:var(--font-display)]">{t.name}</p>
+                        <p className="text-xs text-stone-500">{t.role}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </section>

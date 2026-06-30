@@ -5,6 +5,7 @@ import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
 import { useReveal, useCounter } from '@/components/shared/hooks';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useRef, useState, useEffect } from 'react';
 
@@ -98,14 +99,12 @@ export default function OmOssPage() {
                 </div>
               </div>
               <div className="lg:col-span-2 relative reveal-right" ref={useReveal('reveal-right')}>
-                <div className="aspect-[3/4] rounded-2xl bg-stone-100 flex items-center justify-center relative overflow-hidden border border-stone-200">
-                  <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #1c1917 1px, transparent 0)', backgroundSize: '24px 24px' }} />
-                  <div className="text-center p-8 relative">
-                    <div className="w-16 h-16 rounded-2xl bg-white shadow-lg flex items-center justify-center mx-auto mb-4">
-                      <Server className="w-8 h-8 text-stone-700" />
-                    </div>
-                    <p className="text-stone-800 font-semibold text-lg font-[family-name:var(--font-display)]">Professionell infrastruktur</p>
-                    <p className="text-stone-500 text-sm mt-1">WHM/cPanel · LiteSpeed · CloudLinux</p>
+                <div className="aspect-[3/4] rounded-2xl overflow-hidden relative border border-stone-200 shadow-lg">
+                  <Image src="/images/team.jpg" alt="Ownli teamet" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 40vw" priority />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-900/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <p className="text-white font-semibold text-lg font-[family-name:var(--font-display)]">Teamet bakom Ownli</p>
+                    <p className="text-stone-300 text-sm mt-1">Teknisk expertis & genuin omsorg</p>
                   </div>
                 </div>
                 <div className="absolute -bottom-6 -right-6 w-28 h-28 bg-stone-900 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-stone-900/20">
@@ -113,6 +112,29 @@ export default function OmOssPage() {
                     <div className="text-3xl font-bold font-[family-name:var(--font-display)]">5+</div>
                     <div className="text-xs text-stone-400">Års erfarenhet</div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Infrastructure image full width */}
+        <section className="py-16 sm:py-24 bg-stone-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl shadow-stone-200/50" ref={valuesRef}>
+              <div className="grid lg:grid-cols-2">
+                <div className="relative aspect-[16/10] lg:aspect-auto">
+                  <Image src="/images/infrastructure.jpg" alt="Serverinfrastruktur" fill className="object-cover" sizes="(max-width: 1024px) 100vw, 50vw" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-stone-50/10 lg:bg-gradient-to-r lg:from-transparent lg:to-stone-50" />
+                </div>
+                <div className="bg-stone-50 p-8 sm:p-12 flex flex-col justify-center">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-stone-900 mb-4 font-[family-name:var(--font-display)]">Säker & snabb infrastruktur</h3>
+                  <p className="text-stone-500 leading-relaxed mb-6">Våra servrar kör LiteSpeed-webbservern med CloudLinux för maximal stabilitet. Varje kundmiljö är isolerad, säker och optimerad för WordPress. Med Imunify360 och dagliga backuper sover du gott om natten.</p>
+                  <Link href="/tjanster">
+                    <Button variant="outline" className="rounded-full border-stone-300 hover:border-stone-900 hover:bg-stone-900 hover:text-white transition-all">
+                      Läs om vår hosting <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
